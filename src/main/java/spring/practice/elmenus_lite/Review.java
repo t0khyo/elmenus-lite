@@ -1,7 +1,8 @@
-package spring.practice.elmenus_lite.model;
+package spring.practice.elmenus_lite;
 
 import jakarta.persistence.*;
 import lombok.*;
+import spring.practice.elmenus_lite.model.Restaurant;
 
 import java.sql.Timestamp;
 
