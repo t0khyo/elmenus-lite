@@ -35,8 +35,8 @@
     <include file="db/changelog/changes/021-create-promotion.xml"/>
     <include file="db/changelog/changes/022-create-orders.xml"/>
     <include file="db/changelog/changes/023-create-order_item.xml"/>
-    <include file="db/changelog/changes/025-create-transactions.xml"/>
-    <include file="db/changelog/changes/026-create-transaction_details.xml"/>
+    <include file="db/changelog/changes/025-create-transaction_details.xml"/>
+    <include file="db/changelog/changes/026-create-transactions.xml"/>
 
     <include file="db/changelog/changes/027-create-review.xml"/>
     <include file="db/changelog/changes/028-create-audit_type.xml"/>

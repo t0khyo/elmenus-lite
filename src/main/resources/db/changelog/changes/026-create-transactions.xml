@@ -6,11 +6,13 @@
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
-    <changeSet id="025" author="t0khyo">
+    <changeSet id="026" author="t0khyo">
         <createTable tableName="transactions">
             <column name="transaction_id" type="UUID" defaultValueComputed="gen_random_uuid()">
                 <constraints primaryKey="true"/>
             </column>
+
+            <column name="transaction_details_id" type="UUID"/>
 
             <column name="order_id" type="INT">
                 <constraints nullable="false"/>
@@ -73,6 +75,14 @@
                 constraintName="fk_transactions_transaction_status"
                 referencedTableName="transaction_status"
                 referencedColumnNames="transaction_status_id"
+        />
+
+        <addForeignKeyConstraint
+                baseTableName="transactions"
+                baseColumnNames="transaction_details_id"
+                constraintName="fk_transactions_transaction_details"
+                referencedTableName="transaction_details"
+                referencedColumnNames="transaction_details_id"
         />
     </changeSet>
 </databaseChangeLog>

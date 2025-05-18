@@ -6,10 +6,10 @@
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
-    <changeSet id="026" author="t0khyo">
+    <changeSet id="025" author="t0khyo">
         <createTable tableName="transaction_details">
-            <column name="transaction_id" type="UUID">
-                <constraints nullable="false"/>
+            <column name="transaction_details_id" type="UUID">
+                <constraints primaryKey="true"/>
             </column>
 
             <column name="details" type="TEXT"/>
@@ -30,19 +30,5 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-
-        <!-- === CONSTRAINTS: Primary Key & Foreign Keys === -->
-        <addPrimaryKey tableName="transaction_details"
-                       columnNames="transaction_id"
-        />
-
-        <addForeignKeyConstraint
-                baseTableName="transaction_details"
-                baseColumnNames="transaction_id"
-                constraintName="fk_transaction_details_transaction"
-                referencedTableName="transactions"
-                referencedColumnNames="transaction_id"
-                onDelete="CASCADE"
-        />
     </changeSet>
 </databaseChangeLog>
