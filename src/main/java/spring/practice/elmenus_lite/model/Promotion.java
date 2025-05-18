@@ -18,8 +18,8 @@ import java.math.BigDecimal;
 public class Promotion extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Long id;
+    @Column(name = "promotion_id")
+    private Integer id;
 
     @Column(name = "code", nullable = false, unique = true, length = 50)
     private String code;
