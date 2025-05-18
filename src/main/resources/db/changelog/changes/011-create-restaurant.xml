@@ -16,6 +16,10 @@
                 <constraints nullable="false" unique="true"/>
             </column>
 
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+
             <column name="created_at" type="datetime" defaultValueComputed="NOW()">
                 <constraints nullable="false"/>
             </column>

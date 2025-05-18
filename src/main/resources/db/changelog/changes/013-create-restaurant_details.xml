@@ -13,14 +13,14 @@
             </column>
 
             <column name="restaurant_id" type="INT">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
 
             <column name="description" type="TEXT"/>
 
             <column name="phone" type="VARCHAR(15)"/>
 
-            <column name="estimated_delivery_time" type="INTERVAL"/>
+            <column name="average_delivery_time" type="INTERVAL"/>
 
             <column name="open_time" type="TIME">
                 <constraints nullable="false"/>

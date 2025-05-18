@@ -1,38 +1,31 @@
 package spring.practice.elmenus_lite.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import spring.practice.elmenus_lite.model.audit.Auditable;
 
-import java.sql.Timestamp;
 
-
+@Getter
+@Setter
+@Accessors(chain = true)
 @Entity
-@Table(name = "restaurant", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "restaurant_name")
-})
-@Data
+@Table(name = "restaurant")
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class Restaurant {
-
+public class Restaurant extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "restaurant_id", nullable = false)
-    private Integer restaurantId;
+    @Column(name = "restaurant_id")
+    private Integer id;
 
     @Column(name = "restaurant_name", nullable = false, length = 100, unique = true)
     private String restaurantName;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
-    private Timestamp createdAt;
+    @OneToOne(mappedBy = "restaurant", optional = false, orphanRemoval = true)
+    private RestaurantDetails details;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT now()")
-    private Timestamp updatedAt;
-
-    @Column(name = "created_by", nullable = false, length = 255)
-    private String createdBy;
-
-    @Column(name = "updated_by", nullable = false, length = 255)
-    private String updatedBy;
+    @Column(name = "active", nullable = false)
+    private boolean active;
 }
