@@ -1,6 +1,5 @@
 package spring.practice.elmenus_lite.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,28 +7,29 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import spring.practice.elmenus_lite.model.audit.Auditable;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Getter
 @Setter
 @Accessors(chain = true)
 @Entity
-@Table(name = "menu")
+@Table(name = "review")
 @NoArgsConstructor
-public class Menu extends Auditable {
+public class Review extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "menu_id")
+    @Column(name = "review_id", nullable = false)
     private Integer id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
-    @Column(name = "menu_name", length = 100)
-    private String name;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
-    @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
-    private Set<MenuItem> menuItems = new HashSet<>();
+    @Column(name = "rating", nullable = false)
+    private Byte rating;
+
+    @Column(name = "comment", columnDefinition = "TEXT")
+    private String comment;
 }
