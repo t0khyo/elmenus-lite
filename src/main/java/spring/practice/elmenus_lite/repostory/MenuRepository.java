@@ -1,7 +1,7 @@
 // repository/MenuRepository.java
-package com.javaeats.repository;
+package com.elmenus_lite.repository;
 
-import com.javaeats.model.Menu;
+import com.elmenus_lite.model.Menu;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

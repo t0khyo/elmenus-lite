@@ -1,11 +1,12 @@
 // repository/OrderRepository.java
-package com.javaeats.repository;
+package com.elmenus_lite.repository;
 
-import com.javaeats.model.Order;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.elmenus_lite.model.Order;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
