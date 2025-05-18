@@ -13,7 +13,7 @@
             </column>
 
             <column name="customer_id" type="INT">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
 
             <column name="created_at" type="datetime" defaultValueComputed="NOW()">
