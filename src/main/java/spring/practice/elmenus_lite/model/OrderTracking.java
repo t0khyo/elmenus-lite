@@ -1,7 +1,11 @@
 package spring.practice.elmenus_lite.model;
 
+import com.vladmihalcea.hibernate.type.interval.PostgreSQLIntervalType;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Type;
+
+import java.time.Duration;
 
 @Entity
 @Table(name = "order_tracking")
@@ -18,6 +22,7 @@ public class OrderTracking {
 
     // TODO add geolocation
 
+    @Type(value = PostgreSQLIntervalType.class)
     @Column(name = "estimated_time")
-    private String estimatedTime;
+    private Duration estimatedTime;
 }
