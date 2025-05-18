@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.sql.Time;
 import java.time.Duration;
 
 
@@ -35,10 +36,10 @@ public class RestaurantDetails {
     private Duration estimatedDeliveryTime;
 
     @Column(name = "open_time", nullable = false)
-    private String openTime;
+    private Time openTime;
 
     @Column(name = "close_time", nullable = false)
-    private String closeTime;
+    private Time closeTime;
 
     // Todo: add geolocation
 }
