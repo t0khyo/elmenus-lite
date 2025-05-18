@@ -24,6 +24,8 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="order_tracking_id" type="INT"/>
+
             <column name="promotion_id" type="INT"/>
 
             <column name="discount_amount" type="NUMERIC(10,2)"/>
@@ -80,6 +82,15 @@
                 constraintName="fk_orders_order_status"
                 referencedTableName="order_status"
                 referencedColumnNames="order_status_id"
+        />
+
+        <addForeignKeyConstraint
+                baseTableName="orders"
+                baseColumnNames="order_tracking_id"
+                constraintName="fk_orders_order_tracking"
+                referencedTableName="order_tracking"
+                referencedColumnNames="order_tracking_id"
+                onDelete="CASCADE"
         />
     </changeSet>
 </databaseChangeLog>

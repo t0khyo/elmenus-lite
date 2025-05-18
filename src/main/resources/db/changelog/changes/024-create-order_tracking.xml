@@ -8,8 +8,8 @@
 
     <changeSet id="024" author="t0khyo">
         <createTable tableName="order_tracking">
-            <column name="order_id" type="INT">
-                <constraints nullable="false"/>
+            <column name="order_tracking_id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true"/>
             </column>
 
             <column name="current_location" type="GEOGRAPHY(Point,4326)"/>
@@ -32,19 +32,5 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-
-        <!-- === CONSTRAINTS: Primary Key & Foreign Keys === -->
-        <addPrimaryKey tableName="order_tracking"
-                       columnNames="order_id"
-        />
-
-        <addForeignKeyConstraint
-                baseTableName="order_tracking"
-                baseColumnNames="order_id"
-                constraintName="fk_order_tracking_orders"
-                referencedTableName="orders"
-                referencedColumnNames="order_id"
-                onDelete="CASCADE"
-        />
     </changeSet>
 </databaseChangeLog>

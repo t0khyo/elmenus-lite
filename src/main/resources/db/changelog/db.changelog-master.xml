@@ -30,10 +30,11 @@
     <include file="db/changelog/changes/019-create-cart.xml"/>
     <include file="db/changelog/changes/020-create-cart_item.xml"/>
 
+    <include file="db/changelog/changes/024-create-order_tracking.xml"/>
+
     <include file="db/changelog/changes/021-create-promotion.xml"/>
     <include file="db/changelog/changes/022-create-orders.xml"/>
     <include file="db/changelog/changes/023-create-order_item.xml"/>
-    <include file="db/changelog/changes/024-create-order_tracking.xml"/>
     <include file="db/changelog/changes/025-create-transactions.xml"/>
     <include file="db/changelog/changes/026-create-transaction_details.xml"/>
 
