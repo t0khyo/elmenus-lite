@@ -1,7 +1,7 @@
 // repository/UserRepository.java
-package com.javaeats.repository;
+package com.elmenus_lite.repository;
 
-import com.javaeats.model.User;
+import com.elmenus_lite.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

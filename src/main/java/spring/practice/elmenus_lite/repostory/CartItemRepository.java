@@ -1,7 +1,7 @@
 // repository/CartItemRepository.java
-package com.javaeats.repository;
+package com.elmenus_lite.repository;
 
-import com.javaeats.model.CartItem;
+import com.elmenus_lite.model.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

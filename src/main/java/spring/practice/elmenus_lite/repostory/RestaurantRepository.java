@@ -1,7 +1,7 @@
 // repository/RestaurantRepository.java
-package com.javaeats.repository;
+package com.elmenus_lite.repository;
 
-import com.javaeats.model.Restaurant;
+import com.elmenus_lite.model.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

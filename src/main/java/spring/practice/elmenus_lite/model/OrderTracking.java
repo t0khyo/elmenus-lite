@@ -1,5 +1,5 @@
 // model/OrderTracking.java
-package com.javaeats.model;
+package com.elmenus_lite.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
