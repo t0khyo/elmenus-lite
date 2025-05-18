@@ -24,7 +24,7 @@ public class User extends Auditable {
     private Integer id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_type_id")
+    @JoinColumn(name = "user_type_id", nullable = false)
     private UserType userType;
 
     @ManyToMany
