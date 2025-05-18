@@ -1,9 +1,8 @@
-// repository/UserTypeRepository.java
-package com.elmenus_lite.repository;
+package spring.practice.elmenus_lite.repostory;
 
-import com.jelmenus_lite.model.UserType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import spring.practice.elmenus_lite.model.UserType;
 
 @Repository
 public interface UserTypeRepository extends JpaRepository<UserType, Integer> {
