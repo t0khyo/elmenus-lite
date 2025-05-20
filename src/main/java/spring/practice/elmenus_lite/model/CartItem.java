@@ -17,7 +17,7 @@ public class CartItem extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cart_item_id", nullable = false)
-    private Integer cartItemId;
+    private Integer id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "cart_id", nullable = false)

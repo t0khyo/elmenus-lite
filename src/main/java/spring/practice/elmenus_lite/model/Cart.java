@@ -20,12 +20,12 @@ public class Cart extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cart_id")
-    private Integer cartId;
+    private Integer id;
 
     @OneToOne(optional = false)
     @JoinColumn(name = "customer_id", nullable = false, unique = true)
     private Customer customer;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CartItem> cartItems = new HashSet<>();
+    private Set<CartItem> items = new HashSet<>();
 }
