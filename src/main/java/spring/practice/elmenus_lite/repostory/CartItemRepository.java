@@ -6,4 +6,5 @@ import spring.practice.elmenus_lite.model.CartItem;
 
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
+    boolean existsByIdAndCartId(Integer cartItemId, Integer cartId);
 }
