@@ -1,7 +1,7 @@
 package spring.practice.elmenus_lite.dto;
 
 public record CartItemResponse(
-        Integer cartItemId,
+        Integer id,
         MenuItemResponse menuItem,
         Integer quantity
 ) {}
