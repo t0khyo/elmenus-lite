@@ -22,7 +22,7 @@ public class MenuItem extends Auditable {
     @Column(name = "menu_item_id")
     private Integer id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id", nullable = false)
     private Menu menu;
 
