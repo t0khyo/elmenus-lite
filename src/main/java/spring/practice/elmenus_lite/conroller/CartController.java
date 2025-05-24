@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import spring.practice.elmenus_lite.dto.CartItemRequest;
 import spring.practice.elmenus_lite.dto.CartItemResponse;
 import spring.practice.elmenus_lite.dto.CartResponse;
+import spring.practice.elmenus_lite.dto.ItemQuantityRequest;
 import spring.practice.elmenus_lite.model.Customer;
 import spring.practice.elmenus_lite.service.CartService;
 
@@ -19,6 +20,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
+    @PutMapping("/{cartId}/items/{cartItemId}")
+    public ResponseEntity<CartItemResponse> modifyQuantity(
+            @PathVariable int cartId,
+            @PathVariable int cartItemId,
+            @RequestBody @Valid ItemQuantityRequest cartItemUpdateRequest
+    ) {
+        // ***************** Need To Handle Bad Request That Happen because Validation
+        return ResponseEntity.ok(cartService.updateCartItem(cartId,cartItemId,cartItemUpdateRequest.quantity()));
+    }
     @PostMapping("/{customerId}/items")
     public ResponseEntity<CartItemResponse> addItem(@PathVariable("customerId") Integer customerId,@RequestBody @Valid CartItemRequest cartItemRequest) {
         // ***************** Need To Handle Bad Request That Happen because Validation

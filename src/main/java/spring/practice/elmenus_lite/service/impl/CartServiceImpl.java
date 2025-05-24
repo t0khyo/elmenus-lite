@@ -40,7 +40,31 @@ public class CartServiceImpl implements CartService {
         cartOptional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Cart not found for CustomerId: " + customerId));
         return cartMapper.toCartResponse(cartOptional.get());
     }
-
+    @Override
+    public CartItemResponse updateCartItem(Integer cartId, Integer cartItemId, Integer quantity) {
+        //check If Cart found or throw
+        Cart cart = getCartById(cartId);
+        // check If cart have that item
+        Optional<CartItem> cartItemOptional = cart.getItems()
+                .stream()
+                .filter((item) -> item.getId().equals(cartItemId))
+                .findFirst();
+        cartItemOptional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Cart item not found in Cart: " + cartId));
+        CartItem cartItem = cartItemOptional.get();
+        if(quantity==0)
+        {
+            //Delete Cart Item
+            cartItemRepository.delete(cartItem);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT,String.format("Cart item %s Deleted from cart : %s", cartItemId, cart));
+        }
+        else
+        {
+            //update quantity
+            cartItem.setQuantity(quantity);
+            cartItemRepository.save(cartItem);
+        }
+        return cartMapper.toCartItemResponse(cartItem);
+    }
     @Override
     public CartItemResponse addItemToCart(Integer customerId, CartItemRequest cartItemRequest) {
         Integer menuItemIdRequest = cartItemRequest.menuItemId();

@@ -9,4 +9,5 @@ public interface CartService {
     CartResponse clearCart(Integer cartId);
     CartResponse getCartByCustomerId(Integer customerId);
     CartItemResponse addItemToCart (Integer customerId, CartItemRequest cartItemRequest);
+    CartItemResponse  updateCartItem( Integer cartId, Integer cartItemId,Integer Quantity);
 }
