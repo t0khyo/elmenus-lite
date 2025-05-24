@@ -1,10 +1,13 @@
 package spring.practice.elmenus_lite.conroller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import spring.practice.elmenus_lite.dto.CartItemRequest;
+import spring.practice.elmenus_lite.dto.CartItemResponse;
 import spring.practice.elmenus_lite.dto.CartResponse;
 import spring.practice.elmenus_lite.model.Customer;
 import spring.practice.elmenus_lite.service.CartService;
@@ -16,6 +19,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
+    @PostMapping("/{customerId}/items")
+    public ResponseEntity<CartItemResponse> addItem(@PathVariable("customerId") Integer customerId,@RequestBody @Valid CartItemRequest cartItemRequest) {
+        // ***************** Need To Handle Bad Request That Happen because Validation
+         return ResponseEntity.ok(cartService.addItemToCart(customerId,cartItemRequest));
+    }
     @GetMapping("/{customerId}")
     public ResponseEntity<CartResponse> getCartByCustomerId(@PathVariable Integer customerId) {
 
