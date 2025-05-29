@@ -21,7 +21,7 @@ public class CartController {
     private final CartService cartService;
     @PostMapping("/{customerId}/items")
     public ResponseEntity<CartItemResponse> addItem(@PathVariable("customerId") Integer customerId,@RequestBody @Valid CartItemRequest cartItemRequest) {
-        // ***************** Need To Handle Bad Request That Happen because Validation
+        // todo: Need To Handle Bad Request That Happen because Validation
          return ResponseEntity.ok(cartService.addItemToCart(customerId,cartItemRequest));
     }
     @GetMapping("/{customerId}")
