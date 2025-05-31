@@ -1,0 +1,294 @@
+openapi: 3.0.1
+info:
+  title: Cart Management API
+  description: API endpoints for managing customer carts in elmenus-lite.
+  version: 1.0.0
+tags:
+  - name: Cart Management
+    description: Operations related to customer cart management
+
+paths:
+  /carts/{customerId}:
+    get:
+      tags:
+        - Cart Management
+      summary: View cart
+      description: Returns current cart contents for a customer.
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: Numeric ID of the customer (must be a positive integer)
+      responses:
+        '200':
+          description: Cart retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+              examples:
+                example1:
+                  summary: Example cart response
+                  value:
+                    cartId: 123
+                    items:
+                      - cartItemId: 1
+                        menuItem:
+                          menuItemId: 101
+                          name: "Burger"
+                          price: 5.99
+                        quantity: 2
+                        totalPrice: 11.98
+                      - cartItemId: 2
+                        menuItem:
+                          menuItemId: 102
+                          name: "Pizza"
+                          price: 8.99
+                        quantity: 1
+                        totalPrice: 8.99
+                    totalAmount: 20.97
+        '400':
+          description: Invalid customer ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidId:
+                  summary: Invalid customer ID
+                  value:
+                    code: "INVALID_CUSTOMER_ID"
+                    message: "The customer ID must be a positive integer."
+        '404':
+          description: Customer or cart not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  summary: Cart not found
+                  value:
+                    code: "CART_NOT_FOUND"
+                    message: "No cart found for customer ID 123."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Unexpected server error
+                  value:
+                    code: "INTERNAL_SERVER_ERROR"
+                    message: "An unexpected error occurred while retrieving the cart."
+                    
+                    
+  /carts/{customerId}/items:
+    post:
+      tags:
+        - Cart Management
+      summary: Add item to cart or increase item quantity
+      description: Adds a new menu item to the customer's cart.
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema:
+            type: integer
+          description: ID of the customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItemRequest'
+            examples:
+              example1:
+                summary: Example request to add an item to the cart
+                value:
+                  menuItemId: 101
+                  quantity: 2
+      responses:
+        '200':
+          description: Item added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItemResponse'
+        '404':
+          description: Customer or menu item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                itemNotFound:
+                  summary: Menu item not found
+                  value:
+                    code: "ITEM_NOT_FOUND"
+                    message: "The specified menu item was not found."
+        '400':
+          description: Invalid input (e.g., negative quantity).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidRequest:
+                  summary: Invalid request body
+                  value:
+                    code: "INVALID_REQUEST"
+                    message: "Menu item ID and quantity are required."
+
+    
+  /carts/{cartId}/items/{cartItemId}:
+    put:
+      tags:
+        - Cart Management
+      summary: Modify cart item
+      description: Updates quantity of a specific item in the cart.
+      parameters:
+        - in: path
+          name: cartId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: cartItemId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  example: 3
+      responses:
+        '200':
+          description: Quantity updated successfully or item deleted if quantity is zero.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItemResponse'
+        '404':
+          description: Cart item not found
+        '400' :
+          description: Invalid quantity value. Quantity must be a non-negative integer.
+    delete:
+      tags:
+        - Cart Management
+      summary: Remove item from cart
+      description: Deletes a menu item from the cart.
+      parameters:
+        - in: path
+          name: cartId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: cartItemId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Item removed successfully
+        '404':
+          description: Cart item not found
+  /carts/{cartId}/clear:
+    delete:
+      tags:
+        - Cart Management
+      summary: Clear all items from the cart
+      description: Deletes all items from the specified cart.
+      parameters:
+        - in: path
+          name: cartId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cart cleared successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+              example:
+                cartId: 123
+                items: []
+                totalAmount: 0.0
+        '404':
+          description: Cart item not found
+
+  
+components:
+  schemas:
+
+    CartItemRequest:
+      type: object
+      properties:
+        menuItemId:
+          type: integer
+          example: 101
+        quantity:
+          type: integer
+          example: 2
+
+    CartItemResponse:
+      type: object
+      properties:
+        cartItemId:
+          type: integer
+        menuItem:
+          $ref: '#/components/schemas/MenuItemResponse'
+        quantity:
+          type: integer
+        totalPrice:
+          type: number
+          format: float
+          
+    MenuItemResponse:
+      type: object
+      properties:
+        menuItemId:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+        menuId:
+          type: integer
+
+    CartResponse:
+      type: object
+      properties:
+        cartId:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItemResponse'
+        totalAmount:
+          type: number
+          format: float
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "INVALID_CUSTOMER_ID"
+        message:
+          type: string
+          example: "The customer ID must be a valid integer."
