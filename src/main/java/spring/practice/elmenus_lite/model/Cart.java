@@ -1,10 +1,13 @@
 package spring.practice.elmenus_lite.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import spring.practice.elmenus_lite.model.audit.Auditable;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +29,9 @@ public class Cart extends Auditable {
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CartItem> items = new HashSet<>();
+
+    @Transient
+    private BigDecimal totalAmount;
 
     public Cart addItem(CartItem item) {
         items.add(item);
