@@ -45,4 +45,8 @@ public class Restaurant extends Auditable {
 
     @Column(name = "active", nullable = false)
     private boolean active;
+
+    public boolean getActive() {
+        return active;
+    }
 }
