@@ -9,12 +9,14 @@ import spring.practice.elmenus_lite.dto.PaymentResult;
 import spring.practice.elmenus_lite.exception.ResourceNotFoundException;
 import spring.practice.elmenus_lite.model.*;
 import spring.practice.elmenus_lite.model.enums.OrderStatusEnum;
-import spring.practice.elmenus_lite.model.enums.PaymentStatusEnum;
-import spring.practice.elmenus_lite.repostory.*;
+import spring.practice.elmenus_lite.model.enums.TransactionStatusEnum;
+import spring.practice.elmenus_lite.repostory.CartItemRepository;
+import spring.practice.elmenus_lite.repostory.OrderItemRepository;
+import spring.practice.elmenus_lite.repostory.OrderRepository;
+import spring.practice.elmenus_lite.repostory.OrderStatusRepository;
 import spring.practice.elmenus_lite.service.OrderCalculation;
 import spring.practice.elmenus_lite.service.OrderService;
 import spring.practice.elmenus_lite.service.OrderValidation;
-import spring.practice.elmenus_lite.service.PaymentService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -56,9 +58,8 @@ public class OrderServiceImpl implements OrderService {
 
 
         //TODO:  Step 4: Process Payment
-        //PaymentResult paymentResult = processPayment(customer.getId(), total, paymentSetting.getPreferredPaymentSettingId());
-        PaymentResult dummyPaymentResult=new PaymentResult(PaymentStatusEnum.SUCCESS,"Cash","31398913");
-
+        //PaymentResult paymentResult = paymentService.processPayment(customer.getId(), total, paymentSetting.getPreferredPaymentSettingId());
+        PaymentResult dummyPaymentResult=new PaymentResult(TransactionStatusEnum.SUCCESS,"Cash","31398913");
 
         // Step 5: Create Order
         Order order = createOrder(customer, address, promotion, subtotal, discountAmount, total, dummyPaymentResult.status());
@@ -76,9 +77,9 @@ public class OrderServiceImpl implements OrderService {
     //Helper Method
     private Order createOrder(Customer customer, Address address, Promotion promotion,
                               BigDecimal subtotal, BigDecimal discountAmount, BigDecimal total,
-                              PaymentStatusEnum paymentStatus) {
+                              TransactionStatusEnum transactionStatus) {
 
-        OrderStatusEnum orderStatus = mapPaymentStatusToOrderStatus(paymentStatus);
+        OrderStatusEnum orderStatus = mapTransactionStatusToOrderStatus(transactionStatus);
 
         OrderStatus orderStatusEntity = orderStatusRepository.findByName(orderStatus.getStatus())
                 .orElseThrow(() -> new ResourceNotFoundException("Order status not found: " + orderStatus.getStatus()));
@@ -111,26 +112,26 @@ public class OrderServiceImpl implements OrderService {
             orderItemRepository.save(orderItem);
         }
     }
-    private void handleCartCleanup(Integer cartId, PaymentStatusEnum paymentStatus) {
-        if (paymentStatus == PaymentStatusEnum.SUCCESS)
+    private void handleCartCleanup(Integer cartId, TransactionStatusEnum transactionStatus) {
+        if (transactionStatus == TransactionStatusEnum.SUCCESS)
             cartItemRepository.deleteByCartId(cartId);
     }
-    private OrderStatusEnum mapPaymentStatusToOrderStatus(PaymentStatusEnum paymentStatus) {
-        return switch (paymentStatus) {
+    private OrderStatusEnum mapTransactionStatusToOrderStatus(TransactionStatusEnum transactionStatus) {
+        return switch (transactionStatus) {
             case SUCCESS -> OrderStatusEnum.CONFIRMED;
             case FAILED -> OrderStatusEnum.FAILED;
             case PENDING -> OrderStatusEnum.PENDING;
         };
     }
     private OrderSummary buildOrderSummary(Order order, PaymentResult paymentResult) {
-        OrderStatusEnum orderStatus = mapPaymentStatusToOrderStatus(paymentResult.status());
+        OrderStatusEnum orderStatus = mapTransactionStatusToOrderStatus(paymentResult.status());
 
         return OrderSummary.builder()
-                .orderId(order.getId().longValue())
+                .id(order.getId())
                 .orderDate(order.getOrderDate())
                 .totalAmount(order.getTotal())
-                .status(orderStatus)
-                .paymentMethod(paymentResult.paymentMethod())
+                .status(orderStatus.getStatus())
+                .paymentType(paymentResult.paymentMethod())
                 .build();
     }
 
