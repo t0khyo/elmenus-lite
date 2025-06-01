@@ -40,13 +40,13 @@ public class OrderController {
 //        return ResponseEntity.ok(summary);
 //    }
 //
-//    // GET /orders/{orderId}/summary - Get order summary
-//    @GetMapping("/{orderId}/summary")
-//    public ResponseEntity<OrderSummary> getOrderSummary(@PathVariable Long orderId) {
-//        OrderSummary summary = orderService.getOrderSummary(orderId);
-//        return ResponseEntity.ok(summary);
-//    }
-//
+    // GET /orders/{orderId}/summary - Get order summary
+    @GetMapping("/{orderId}/summary")
+    public ResponseEntity<OrderSummary> getOrderSummary(@PathVariable Integer orderId) {
+        OrderSummary summary = orderService.getOrderSummary(orderId);
+        return ResponseEntity.ok(summary);
+    }
+
 //    // GET /orders/{orderId}/details - Get full order details
 //    @GetMapping("/{orderId}/details")
 //    public ResponseEntity<OrderDetails> getOrderDetails(@PathVariable Long orderId) {
