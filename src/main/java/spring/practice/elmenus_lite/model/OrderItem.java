@@ -1,9 +1,7 @@
 package spring.practice.elmenus_lite.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import spring.practice.elmenus_lite.model.audit.Auditable;
 
@@ -15,6 +13,8 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "order_item")
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class OrderItem extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
