@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring.practice.elmenus_lite.dto.NewOrderRequest;
+import spring.practice.elmenus_lite.dto.OrderDetails;
 import spring.practice.elmenus_lite.dto.OrderSummary;
 import spring.practice.elmenus_lite.service.OrderService;
 
@@ -47,10 +48,10 @@ public class OrderController {
         return ResponseEntity.ok(summary);
     }
 
-//    // GET /orders/{orderId}/details - Get full order details
-//    @GetMapping("/{orderId}/details")
-//    public ResponseEntity<OrderDetails> getOrderDetails(@PathVariable Long orderId) {
-//        OrderDetails details = orderService.getOrderDetails(orderId);
-//        return ResponseEntity.ok(details);
-//    }
+    // GET /orders/{orderId}/details - Get full order details
+    @GetMapping("/{orderId}/details")
+    public ResponseEntity<OrderDetails> getOrderDetails(@PathVariable Integer orderId) {
+        OrderDetails details = orderService.getOrderDetails(orderId);
+        return ResponseEntity.ok(details);
+    }
 }
