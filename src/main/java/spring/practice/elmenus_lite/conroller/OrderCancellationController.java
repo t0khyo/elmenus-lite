@@ -88,7 +88,6 @@ public class OrderCancellationController {
 
         log.info("API: Customer {} cancelling order: {} reason: {}", customerId, orderId, reason);
 
-        // Validate customer-specific reasons
         if (!isValidCustomerReason(reason)) {
             throw new IllegalArgumentException("Invalid cancellation reason for customer: " + reason);
         }
@@ -128,7 +127,6 @@ public class OrderCancellationController {
 
         log.info("API: Restaurant {} cancelling order: {} reason: {}", restaurantId, orderId, reason);
 
-        // Validate restaurant-specific reasons
         if (!isValidRestaurantReason(reason)) {
             throw new IllegalArgumentException("Invalid cancellation reason for restaurant: " + reason);
         }
