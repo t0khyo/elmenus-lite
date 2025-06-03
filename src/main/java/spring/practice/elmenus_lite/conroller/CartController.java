@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring.practice.elmenus_lite.dto.CartItemRequest;
-import spring.practice.elmenus_lite.dto.CartItemResponse;
 import spring.practice.elmenus_lite.dto.CartResponse;
 import spring.practice.elmenus_lite.service.CartService;
 
@@ -16,7 +15,7 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping("/{customerId}/items")
-    public ResponseEntity<CartItemResponse> addItem(
+    public ResponseEntity<CartResponse> addItem(
             @PathVariable Integer customerId,
             @RequestBody @Valid CartItemRequest cartItemRequest
     ) {
