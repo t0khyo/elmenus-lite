@@ -4,5 +4,6 @@ public record CartItemResponse(
         Integer id,
         MenuItemResponse menuItem,
         Integer quantity
-) {}
+) {
+}
 
