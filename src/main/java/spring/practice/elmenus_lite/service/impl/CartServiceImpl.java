@@ -44,8 +44,7 @@ public class CartServiceImpl implements CartService {
                 .findFirst()
                 .orElse(null);
 
-        // if the item exists in the cart update the quantity
-        // else create new cart item
+
         if (cartExistingItem != null) {
             cartExistingItem.setQuantity(cartExistingItem.getQuantity() + cartItemRequest.quantity());
 
