@@ -1,7 +1,6 @@
 package spring.practice.elmenus_lite.service;
 
 import spring.practice.elmenus_lite.dto.CartItemRequest;
-import spring.practice.elmenus_lite.dto.CartItemResponse;
 import spring.practice.elmenus_lite.dto.CartResponse;
 
 public interface CartService {
@@ -11,5 +10,5 @@ public interface CartService {
 
     CartResponse getCartByCustomerId(Integer customerId);
 
-    CartItemResponse addItemToCart (Integer customerId, CartItemRequest cartItemRequest);
+    CartResponse addItemToCart(Integer customerId, CartItemRequest cartItemRequest);
 }
