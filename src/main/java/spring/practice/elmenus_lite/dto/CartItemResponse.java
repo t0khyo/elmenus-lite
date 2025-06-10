@@ -1,11 +1,9 @@
 package spring.practice.elmenus_lite.dto;
 
-import java.math.BigDecimal;
-
 public record CartItemResponse(
-        Integer cartItemId,
+        Integer id,
         MenuItemResponse menuItem,
-        Integer quantity,
-        BigDecimal totalPrice
-) {}
+        Integer quantity
+) {
+}
 
