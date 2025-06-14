@@ -39,6 +39,7 @@ public class CartController {
     public ResponseEntity<CartResponse> clearCart(
             @PathVariable Integer cartId
     ) {
-        return ResponseEntity.ok(cartService.clearCart(cartId));
+        cartService.clearCart(cartId);
+        return ResponseEntity.noContent().build();
     }
 }
