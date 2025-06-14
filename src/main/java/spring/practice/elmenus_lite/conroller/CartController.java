@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring.practice.elmenus_lite.dto.CartItemRequest;
+import spring.practice.elmenus_lite.dto.CartItemUpdateRequest;
 import spring.practice.elmenus_lite.dto.CartResponse;
 import spring.practice.elmenus_lite.service.CartService;
 
@@ -25,6 +26,15 @@ public class CartController {
     @GetMapping("/{customerId}")
     public ResponseEntity<CartResponse> getCartByCustomerId(@PathVariable Integer customerId) {
         return ResponseEntity.ok(cartService.getCartByCustomerId(customerId));
+    }
+
+    @PutMapping("/{cartId}/items/{cartItemId}")
+    public ResponseEntity<CartResponse> updateCartItem(
+            @PathVariable(name = "cartId") Integer cartId,
+            @PathVariable(name = "cartItemId") Integer cartItemId,
+            @RequestBody @Valid CartItemUpdateRequest cartItemUpdateRequest
+    ) {
+        return ResponseEntity.ok(cartService.updateCartItem(cartId, cartItemId, cartItemUpdateRequest));
     }
 
     @DeleteMapping("/{cartId}/items/{cartItemId}")
