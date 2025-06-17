@@ -1,6 +1,5 @@
 package spring.practice.elmenus_lite.model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -20,5 +19,4 @@ public class TransactionStatus extends Auditable {
 
     @Column(name = "transaction_status_name", nullable = false, length = 50, unique = true)
     private String transactionStatusName;
-
 }

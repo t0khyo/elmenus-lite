@@ -26,13 +26,13 @@ public class PaymentTypeConfig extends Auditable {
     @JoinColumn(name = "payment_integration_type_id", nullable = false)
     private PaymentIntegrationType paymentIntegrationType;
 
-    @Column(name = "config_details",columnDefinition = "TEXT")
+    @Column(name = "config_details", columnDefinition = "TEXT")
     private String configDetails;
 
     @Column(name = "config_key", nullable = false, length = 100)
     private String configKey;
 
-    @Column(name = "config_value", nullable = false, length = 255)
+    @Column(name = "config_value", nullable = false)
     private String configValue;
 
     @OneToMany(mappedBy = "paymentTypeConfig")

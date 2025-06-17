@@ -26,6 +26,4 @@ public class PreferredPaymentSetting extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_type_config_id", nullable = false)
     private PaymentTypeConfig paymentTypeConfig;
-
-
 }

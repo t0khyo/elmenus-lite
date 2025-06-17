@@ -1,6 +1,5 @@
 package spring.practice.elmenus_lite.model;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -21,12 +20,11 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 public class TransactionDetails extends Auditable {
-
     @Id
     @UuidGenerator
     @Column(name = "transaction_details_id", nullable = false, updatable = false)
     private UUID id;
+
     @Column(name = "details", columnDefinition = "TEXT")
     private String details;
-
 }

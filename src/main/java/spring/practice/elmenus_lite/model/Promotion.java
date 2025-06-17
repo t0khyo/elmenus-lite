@@ -39,5 +39,4 @@ public class Promotion extends Auditable {
 
     @Column(name = "end_at", nullable = false)
     private LocalDateTime endAt;
-
 }

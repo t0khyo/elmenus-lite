@@ -1,7 +1,5 @@
 package spring.practice.elmenus_lite.model;
 
-
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

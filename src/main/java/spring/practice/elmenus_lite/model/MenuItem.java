@@ -9,7 +9,6 @@ import spring.practice.elmenus_lite.model.audit.Auditable;
 
 import java.math.BigDecimal;
 
-
 @Getter
 @Setter
 @Accessors(chain = true)
