@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import spring.practice.elmenus_lite.dto.NewOrderRequest;
-import spring.practice.elmenus_lite.dto.OrderSummary;
+import spring.practice.elmenus_lite.dto.OrderSummaryResponse;
 import spring.practice.elmenus_lite.dto.PaymentResult;
 import spring.practice.elmenus_lite.exception.ResourceNotFoundException;
 import spring.practice.elmenus_lite.model.*;
@@ -34,7 +34,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderSummary placeOrder(NewOrderRequest newOrderRequest) {
+    public OrderSummaryResponse placeOrder(NewOrderRequest newOrderRequest) {
         //TODO: Logging
 
         // Step 1: Entity Fetching & Validation
@@ -123,10 +123,10 @@ public class OrderServiceImpl implements OrderService {
             case PENDING -> OrderStatusEnum.PENDING;
         };
     }
-    private OrderSummary buildOrderSummary(Order order, PaymentResult paymentResult) {
+    private OrderSummaryResponse buildOrderSummary(Order order, PaymentResult paymentResult) {
         OrderStatusEnum orderStatus = mapTransactionStatusToOrderStatus(paymentResult.status());
 
-        return OrderSummary.builder()
+        return OrderSummaryResponse.builder()
                 .id(order.getId())
                 .orderDate(order.getOrderDate())
                 .totalAmount(order.getTotal())
