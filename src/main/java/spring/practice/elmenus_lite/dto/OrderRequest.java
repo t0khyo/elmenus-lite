@@ -2,7 +2,7 @@ package spring.practice.elmenus_lite.dto;
 
 import jakarta.validation.constraints.NotNull;
 
-public record NewOrderRequest(
+public record OrderRequest(
         @NotNull(message = "Customer Id is required")
         Integer customerId,
 

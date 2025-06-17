@@ -3,7 +3,7 @@ package spring.practice.elmenus_lite.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import spring.practice.elmenus_lite.dto.NewOrderRequest;
+import spring.practice.elmenus_lite.dto.OrderRequest;
 import spring.practice.elmenus_lite.dto.OrderSummaryResponse;
 import spring.practice.elmenus_lite.dto.PaymentResult;
 import spring.practice.elmenus_lite.exception.ResourceNotFoundException;
@@ -34,17 +34,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderSummaryResponse placeOrder(NewOrderRequest newOrderRequest) {
+    public OrderSummaryResponse placeOrder(OrderRequest orderRequest) {
         //TODO: Logging
 
         // Step 1: Entity Fetching & Validation
     
-        Customer customer = orderValidation.fetchCustomer(newOrderRequest.customerId());
-        Cart cart = orderValidation.fetchAndValidateCart(newOrderRequest.cartId(), customer.getId());
-        Restaurant restaurant = orderValidation.fetchAndValidateRestaurant(newOrderRequest.restaurantId());
-        Address address = orderValidation.fetchAndValidateAddress(newOrderRequest.addressId(), customer.getId());
+        Customer customer = orderValidation.fetchCustomer(orderRequest.customerId());
+        Cart cart = orderValidation.fetchAndValidateCart(orderRequest.cartId(), customer.getId());
+        Restaurant restaurant = orderValidation.fetchAndValidateRestaurant(orderRequest.restaurantId());
+        Address address = orderValidation.fetchAndValidateAddress(orderRequest.addressId(), customer.getId());
         PreferredPaymentSetting paymentSetting = orderValidation.fetchAndValidatePaymentSetting(
-                newOrderRequest.preferredPaymentSettingId(), customer.getId());
+                orderRequest.preferredPaymentSettingId(), customer.getId());
 
         // Step 2: Cart Validation
         List<CartItem> cartItems = orderValidation.validateCartItems(cart.getId(), restaurant.getId());
@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Step 3: Calculate Totals
         BigDecimal subtotal = orderCalculation.calculateSubtotal(cartItems);
-        Promotion promotion = orderValidation.fetchAndValidatePromotion(newOrderRequest.promotionCode());
+        Promotion promotion = orderValidation.fetchAndValidatePromotion(orderRequest.promotionCode());
         BigDecimal discountAmount = orderCalculation.calculateDiscountAmount(subtotal, promotion);
         BigDecimal total = subtotal.subtract(discountAmount);
 
