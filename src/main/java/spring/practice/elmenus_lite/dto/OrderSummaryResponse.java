@@ -5,14 +5,14 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 @Builder
-public record OrderSummary(
+public record OrderSummaryResponse(
         Integer id,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         LocalDateTime orderDate,
-        // Using BigDecimal for monetary values to avoid precision issues.
         BigDecimal totalAmount,
         String status,
         String paymentType
-)
-{}
+) {
+}
