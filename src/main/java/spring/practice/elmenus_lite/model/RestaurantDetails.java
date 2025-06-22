@@ -1,10 +1,9 @@
 package spring.practice.elmenus_lite.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
+import spring.practice.elmenus_lite.model.audit.Auditable;
 
 import java.sql.Time;
 import java.time.Duration;
@@ -16,14 +15,16 @@ import java.time.Duration;
 @Entity
 @Table(name = "restaurant_details")
 @NoArgsConstructor
-public class RestaurantDetails {
+@Builder
+@AllArgsConstructor
+public class RestaurantDetails extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "restaurant_details_id")
     private Integer id;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "restaurant_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id", nullable = false, unique = true)
     private Restaurant restaurant;
 
     @Column(name = "description", columnDefinition = "TEXT")
