@@ -3,8 +3,7 @@ package spring.practice.elmenus_lite.conroller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import spring.practice.elmenus_lite.dto.NewOrderRequest;
-import spring.practice.elmenus_lite.dto.OrderSummary;
+import spring.practice.elmenus_lite.dto.OrderSummaryResponse;
 import spring.practice.elmenus_lite.service.OrderService;
 
 @RestController
@@ -15,8 +14,8 @@ public class OrderController {
 
     // GET /orders/{orderId}/summary - Get order summary
     @GetMapping("/{orderId}/summary")
-    public ResponseEntity<OrderSummary> getOrderSummary(@PathVariable Integer orderId) {
-        OrderSummary summary = orderService.getOrderSummary(orderId);
+    public ResponseEntity<OrderSummaryResponse> getOrderSummary(@PathVariable Integer orderId) {
+        OrderSummaryResponse summary = orderService.getOrderSummary(orderId);
         return ResponseEntity.ok(summary);
     }
 }

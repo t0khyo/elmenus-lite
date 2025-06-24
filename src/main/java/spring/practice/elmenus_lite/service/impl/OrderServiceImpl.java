@@ -2,7 +2,7 @@ package spring.practice.elmenus_lite.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import spring.practice.elmenus_lite.dto.OrderSummary;
+import spring.practice.elmenus_lite.dto.OrderSummaryResponse;
 import spring.practice.elmenus_lite.exception.ResourceNotFoundException;
 import spring.practice.elmenus_lite.mapper.OrderMapper;
 import spring.practice.elmenus_lite.model.Order;
@@ -18,7 +18,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
 
     @Override
-    public OrderSummary getOrderSummary(Integer orderId) {
+    public OrderSummaryResponse getOrderSummary(Integer orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
         Transaction transaction = transactionRepository.findByOrderId(orderId)
