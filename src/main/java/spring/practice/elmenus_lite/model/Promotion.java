@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import spring.practice.elmenus_lite.model.audit.Auditable;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -29,4 +30,13 @@ public class Promotion extends Auditable {
 
     @Column(name = "discount_percent", nullable = false, precision = 5, scale = 2)
     private BigDecimal discountPercent;
+
+    @Column(name = "max_discount", precision = 10, scale = 2, nullable = false)
+    private BigDecimal maxDiscount;
+
+    @Column(name = "start_at", nullable = false)
+    private LocalDateTime startAt;
+
+    @Column(name = "end_at", nullable = false)
+    private LocalDateTime endAt;
 }
