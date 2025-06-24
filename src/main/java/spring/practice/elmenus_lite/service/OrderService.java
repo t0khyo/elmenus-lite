@@ -7,4 +7,5 @@ public interface OrderService {
 
     OrderSummaryResponse placeOrder(OrderRequest orderRequest) ;
 
+    OrderSummaryResponse getOrderSummary(Integer orderId);
 }

@@ -7,13 +7,11 @@ import spring.practice.elmenus_lite.dto.OrderRequest;
 import spring.practice.elmenus_lite.dto.OrderSummaryResponse;
 import spring.practice.elmenus_lite.dto.PaymentResult;
 import spring.practice.elmenus_lite.exception.ResourceNotFoundException;
+import spring.practice.elmenus_lite.mapper.OrderMapper;
 import spring.practice.elmenus_lite.model.*;
 import spring.practice.elmenus_lite.model.enums.OrderStatusEnum;
 import spring.practice.elmenus_lite.model.enums.TransactionStatusEnum;
-import spring.practice.elmenus_lite.repostory.CartItemRepository;
-import spring.practice.elmenus_lite.repostory.OrderItemRepository;
-import spring.practice.elmenus_lite.repostory.OrderRepository;
-import spring.practice.elmenus_lite.repostory.OrderStatusRepository;
+import spring.practice.elmenus_lite.repostory.*;
 import spring.practice.elmenus_lite.service.OrderService;
 import spring.practice.elmenus_lite.util.CustomerUtils;
 import spring.practice.elmenus_lite.util.OrderUtils;
@@ -32,6 +30,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusRepository orderStatusRepository;
+    private final TransactionRepository transactionRepository;
+    private final OrderMapper orderMapper;
 
     @Override
     @Transactional
@@ -74,6 +74,15 @@ public class OrderServiceImpl implements OrderService {
 
         // Step 8: Return OrderSummary
         return buildOrderSummary(order, dummyPaymentResult);
+    }
+
+    @Override
+    public OrderSummaryResponse getOrderSummary(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
+        Transaction transaction = transactionRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with OrderID: " + orderId));
+        return orderMapper.toOrderSummary(order, transaction.getPaymentMethod().getPaymentType());
     }
 
     //Helper Method
