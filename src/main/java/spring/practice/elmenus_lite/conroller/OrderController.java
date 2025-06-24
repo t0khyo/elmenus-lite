@@ -1,6 +1,7 @@
 package spring.practice.elmenus_lite.conroller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,6 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderSummaryResponse> placeOrder(@RequestBody OrderRequest orderRequest) {
         OrderSummaryResponse summary = orderService.placeOrder(orderRequest);
-        return ResponseEntity.status(201).body(summary);
+        return ResponseEntity.status(HttpStatus.CREATED).body(summary);
     }
 }
