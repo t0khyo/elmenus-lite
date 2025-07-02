@@ -1,4 +1,4 @@
-package spring.practice.elmenus_lite.dto;
+package spring.practice.elmenus_lite.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

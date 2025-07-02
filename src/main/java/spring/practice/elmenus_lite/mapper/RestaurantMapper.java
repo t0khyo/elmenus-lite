@@ -3,13 +3,12 @@ package spring.practice.elmenus_lite.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import spring.practice.elmenus_lite.dto.CategoryResponse;
-import spring.practice.elmenus_lite.dto.RestaurantRequest;
-import spring.practice.elmenus_lite.dto.RestaurantResponse;
+import spring.practice.elmenus_lite.dto.response.CategoryResponse;
+import spring.practice.elmenus_lite.dto.request.RestaurantRequest;
+import spring.practice.elmenus_lite.dto.response.RestaurantResponse;
 import spring.practice.elmenus_lite.model.Restaurant;
 import spring.practice.elmenus_lite.model.RestaurantCategory;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

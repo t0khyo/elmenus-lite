@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import spring.practice.elmenus_lite.dto.RestaurantRequest;
-import spring.practice.elmenus_lite.dto.RestaurantResponse;
+import spring.practice.elmenus_lite.dto.request.RestaurantRequest;
+import spring.practice.elmenus_lite.dto.response.RestaurantResponse;
 import spring.practice.elmenus_lite.exception.InvalidInputException;
 import spring.practice.elmenus_lite.service.RestaurantService;
 

@@ -1,8 +1,8 @@
 package spring.practice.elmenus_lite.service;
 
-import spring.practice.elmenus_lite.dto.CartItemRequest;
-import spring.practice.elmenus_lite.dto.CartItemUpdateRequest;
-import spring.practice.elmenus_lite.dto.CartResponse;
+import spring.practice.elmenus_lite.dto.request.CartItemRequest;
+import spring.practice.elmenus_lite.dto.request.CartItemUpdateRequest;
+import spring.practice.elmenus_lite.dto.response.CartResponse;
 
 public interface CartService {
     CartResponse removeCartItem(Integer cartId, Integer cartItemId);

@@ -1,7 +1,7 @@
 package spring.practice.elmenus_lite.service;
 
-import spring.practice.elmenus_lite.dto.RestaurantRequest;
-import spring.practice.elmenus_lite.dto.RestaurantResponse;
+import spring.practice.elmenus_lite.dto.request.RestaurantRequest;
+import spring.practice.elmenus_lite.dto.response.RestaurantResponse;
 
 import java.sql.Time;
 import java.util.List;

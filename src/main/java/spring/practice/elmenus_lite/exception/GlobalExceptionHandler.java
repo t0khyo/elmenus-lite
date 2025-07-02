@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import spring.practice.elmenus_lite.dto.ErrorResponse;
+import spring.practice.elmenus_lite.dto.response.ErrorResponse;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
