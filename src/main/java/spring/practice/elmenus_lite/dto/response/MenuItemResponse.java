@@ -6,6 +6,7 @@ public record MenuItemResponse(
         Integer id,
         Integer menuId,
         String name,
-        BigDecimal price
+        BigDecimal price,
+        Boolean available
 ) {
 }
