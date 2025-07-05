@@ -31,7 +31,7 @@
             </column>
 
             <column name="location" type="GEOGRAPHY(Point,4326)">
-<!--                <constraints nullable="false"/>-->
+                <constraints nullable="false"/>
             </column>
 
             <column name="created_at" type="datetime" defaultValueComputed="NOW()">

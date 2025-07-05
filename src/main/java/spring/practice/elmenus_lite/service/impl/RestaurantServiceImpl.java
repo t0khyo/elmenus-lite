@@ -59,7 +59,7 @@ public class RestaurantServiceImpl implements RestaurantService {
         log.info("Attempting to create a new restaurant with name: {}", request.name());
 
         // Business validation: Check for unique restaurant name
-        if (restaurantRepository.findByName(request.name()).isPresent()) {
+        if (restaurantRepository.existsByName(request.name())) {
             throw new DuplicateResourceException("Restaurant with name '" + request.name() + "' already exists.");
         }
 

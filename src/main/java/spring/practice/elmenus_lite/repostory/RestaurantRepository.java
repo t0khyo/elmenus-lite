@@ -10,8 +10,9 @@ import java.util.Optional;
 @Repository
 public interface  RestaurantRepository extends JpaRepository<Restaurant, Integer>, JpaSpecificationExecutor<Restaurant> {
 
-    // Find a restaurant by its name, useful for checking uniqueness during creation/update
-    Optional<Restaurant> findByName(String restaurantName);
+
+
+    boolean existsByName(String name);
 
     // Find a restaurant by its name, excluding a specific ID, useful for update uniqueness check
     Optional<Restaurant> findByNameAndIdNot(String restaurantName, Integer restaurantId);

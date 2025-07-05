@@ -96,8 +96,4 @@ public class RestaurantController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/hi")
-    public String sayHi() {
-        return "Hi!";
-    }
 }

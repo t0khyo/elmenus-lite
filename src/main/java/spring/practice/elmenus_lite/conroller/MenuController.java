@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class MenuController {
 
     private final MenuService menuService;
@@ -42,8 +42,9 @@ public class MenuController {
     }
 
 
-    @PutMapping("/menus/{menuId}")
+    @PutMapping("/restaurants/{restaurantId}/menus/{menuId}")
     public ResponseEntity<Void> updateMenu(
+            @PathVariable Integer restaurantId,
             @PathVariable Integer menuId,
             @Valid @RequestBody MenuUpdateRequest request) {
         menuService.updateMenu(menuId, request);
@@ -51,8 +52,9 @@ public class MenuController {
     }
 
 
-    @DeleteMapping("/menus/{menuId}")
+    @DeleteMapping("/restaurants/{restaurantId}/menus/{menuId}")
     public ResponseEntity<Void> deleteMenu(
+            @PathVariable Integer restaurantId,
             @PathVariable Integer menuId) {
         menuService.deleteMenu(menuId);
         return ResponseEntity.ok().build();

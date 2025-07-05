@@ -4,8 +4,8 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,11 +28,11 @@ import spring.practice.elmenus_lite.service.MenuItemService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class MenuItemServiceImpl implements MenuItemService {
 
 
@@ -41,16 +41,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     private final RestaurantRepository restaurantRepository; // To validate restaurant existence
     private final MenuItemMapper menuItemMapper;
 
-    @Autowired
-    public MenuItemServiceImpl(MenuItemRepository menuItemRepository,
-                               MenuRepository menuRepository,
-                               RestaurantRepository restaurantRepository,
-                               MenuItemMapper menuItemMapper) {
-        this.menuItemRepository = menuItemRepository;
-        this.menuRepository = menuRepository;
-        this.restaurantRepository = restaurantRepository;
-        this.menuItemMapper = menuItemMapper;
-    }
+
 
     @Override
     public Integer createMenuItem(Integer menuId, MenuItemCreateRequest request) {

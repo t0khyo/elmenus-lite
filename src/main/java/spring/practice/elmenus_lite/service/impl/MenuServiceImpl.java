@@ -1,8 +1,8 @@
 package spring.practice.elmenus_lite.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import spring.practice.elmenus_lite.dto.request.MenuCreateRequest;
 import spring.practice.elmenus_lite.dto.request.MenuUpdateRequest;
@@ -22,19 +22,13 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
     private final RestaurantRepository restaurantRepository;
     private final MenuMapper menuMapper;
 
-    @Autowired
-    public MenuServiceImpl(MenuRepository menuRepository,
-                           RestaurantRepository restaurantRepository,
-                           MenuMapper menuMapper) {
-        this.menuRepository = menuRepository;
-        this.restaurantRepository = restaurantRepository;
-        this.menuMapper = menuMapper;
-    }
+
 
     @Override
     public Integer createMenu(Integer restaurantId, MenuCreateRequest request) {
