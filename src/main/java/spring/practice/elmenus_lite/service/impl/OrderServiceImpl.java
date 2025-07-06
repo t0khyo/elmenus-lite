@@ -9,6 +9,7 @@ import spring.practice.elmenus_lite.dto.PaymentResult;
 import spring.practice.elmenus_lite.exception.ResourceNotFoundException;
 import spring.practice.elmenus_lite.mapper.OrderMapper;
 import spring.practice.elmenus_lite.model.*;
+import spring.practice.elmenus_lite.model.OrderItem;
 import spring.practice.elmenus_lite.model.enums.OrderStatusEnum;
 import spring.practice.elmenus_lite.model.enums.TransactionStatusEnum;
 import spring.practice.elmenus_lite.repostory.*;
@@ -18,6 +19,7 @@ import spring.practice.elmenus_lite.util.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -83,6 +85,24 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderUtils.fetchAndValidateOrder(orderId);
         Transaction transaction = paymentUtils.fetchTransactionByOrderId(orderId);
         return orderMapper.toOrderSummary(order, transaction.getPaymentMethod().getPaymentType());
+    }
+
+    @Override
+    public OrderDetails getOrderDetails(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
+        DeliveryAddress deliveryAddress = orderMapper.toDeliveryAddress(order.getAddress());
+        List<OrderItemDTO> orderItems = order.getOrderItems().stream().map(orderMapper::toOrderItemDTO).toList();
+        Transaction transaction=transactionRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with OrderID: " + orderId));
+        String paymentType = transaction.getPaymentMethod().getPaymentType();
+        UUID id = transaction.getId();
+        BigDecimal amount = transaction.getAmount();
+        String transactionStatusName = transaction.getTransactionStatus().getTransactionStatusName();
+        PaymentDetails paymentDetails=new PaymentDetails(paymentType,id,amount,transactionStatusName);
+        String promotion = order.getPromotion() != null ? order.getPromotion().getName() : "";
+        TrackingInfo trackingInfo = orderMapper.toTrackingInfo(order.getOrderTracking());
+        return new OrderDetails(order.getId(),order.getOrderDate(),order.getOrderStatus().getName(),orderItems,paymentDetails,deliveryAddress,trackingInfo,promotion);
     }
 
     //Helper Method
