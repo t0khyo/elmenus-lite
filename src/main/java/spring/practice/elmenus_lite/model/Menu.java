@@ -2,6 +2,7 @@ package spring.practice.elmenus_lite.model;
 
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,13 +18,14 @@ import java.util.Set;
 @Entity
 @Table(name = "menu")
 @NoArgsConstructor
+@Builder
 public class Menu extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "menu_id")
     private Integer id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
@@ -31,5 +33,6 @@ public class Menu extends Auditable {
     private String name;
 
     @OneToMany(mappedBy = "menu", orphanRemoval = true, cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<MenuItem> menuItems = new HashSet<>();
 }

@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import spring.practice.elmenus_lite.dto.CartItemRequest;
-import spring.practice.elmenus_lite.dto.CartItemUpdateRequest;
-import spring.practice.elmenus_lite.dto.CartResponse;
+import spring.practice.elmenus_lite.dto.request.CartItemRequest;
+import spring.practice.elmenus_lite.dto.request.CartItemUpdateRequest;
+import spring.practice.elmenus_lite.dto.response.CartResponse;
 import spring.practice.elmenus_lite.service.CartService;
 
 @RestController

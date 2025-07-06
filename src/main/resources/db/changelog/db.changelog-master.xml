@@ -41,5 +41,5 @@
     <include file="db/changelog/changes/027-create-review.xml"/>
     <include file="db/changelog/changes/028-create-audit_type.xml"/>
     <include file="db/changelog/changes/029-create-auditing.xml"/>
-
+    <include file="db/changelog/changes/030-update-restaurant-details-location-nullable.xml"/>
 </databaseChangeLog>
