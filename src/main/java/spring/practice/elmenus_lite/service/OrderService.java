@@ -1,16 +1,15 @@
 package spring.practice.elmenus_lite.service;
 
-import spring.practice.elmenus_lite.dto.NewOrderRequest;
 import spring.practice.elmenus_lite.dto.OrderDetails;
-import spring.practice.elmenus_lite.dto.OrderSummary;
+import spring.practice.elmenus_lite.dto.OrderRequest;
+import spring.practice.elmenus_lite.dto.OrderSummaryResponse;
 
-import java.io.Serializable;
 
 public interface OrderService {
 
-    OrderSummary placeOrder(NewOrderRequest newOrderRequest) ;
-
-    OrderSummary getOrderSummary(Integer orderId);
+    OrderSummaryResponse placeOrder(OrderRequest orderRequest) ;
 
     OrderDetails getOrderDetails(Integer orderId);
+  
+    OrderSummaryResponse getOrderSummary(Integer orderId);
 }

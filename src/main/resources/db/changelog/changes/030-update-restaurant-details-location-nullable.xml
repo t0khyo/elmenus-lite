@@ -1,0 +1,6 @@
+<changeSet id="030" author="MahmoudOsama">
+    <dropNotNullConstraint
+            tableName="restaurant_details"
+            columnName="location"
+            columnDataType="GEOGRAPHY(Point,4326)" />
+</changeSet>
