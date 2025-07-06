@@ -13,8 +13,7 @@ import spring.practice.elmenus_lite.model.enums.OrderStatusEnum;
 import spring.practice.elmenus_lite.model.enums.TransactionStatusEnum;
 import spring.practice.elmenus_lite.repostory.*;
 import spring.practice.elmenus_lite.service.OrderService;
-import spring.practice.elmenus_lite.util.CustomerUtils;
-import spring.practice.elmenus_lite.util.OrderUtils;
+import spring.practice.elmenus_lite.util.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,6 +31,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusRepository orderStatusRepository;
     private final TransactionRepository transactionRepository;
     private final OrderMapper orderMapper;
+    private final RestaurantUtils restaurantUtils;
+    private final PaymentUtils paymentUtils;
+    private final CartUtils cartUtils;
 
     @Override
     @Transactional
@@ -42,15 +44,15 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = customerUtils.fetchCustomer(orderRequest.customerId());
         Cart cart = customer.getCart();
 
-        Restaurant restaurant = orderUtils.fetchAndValidateRestaurant(orderRequest.restaurantId());
+        Restaurant restaurant = restaurantUtils.fetchAndValidateRestaurant(orderRequest.restaurantId());
 
-        Address address = orderUtils.fetchAndValidateAddress(orderRequest.addressId(), customer.getId());
+        Address address = customerUtils.fetchAndValidateAddress(orderRequest.addressId(), customer.getId());
 
-        PreferredPaymentSetting paymentSetting = orderUtils.fetchAndValidatePaymentSetting(
+        PreferredPaymentSetting paymentSetting = paymentUtils.fetchAndValidatePaymentSetting(
                 orderRequest.preferredPaymentSettingId(), customer.getId());
 
         // Step 2: Cart Validation
-        List<CartItem> cartItems = orderUtils.validateCartItems(cart.getId(), restaurant.getId());
+        List<CartItem> cartItems = cartUtils.validateCartItems(cart.getId(), restaurant.getId());
 
         // Step 3: Calculate Totals
         BigDecimal subtotal = orderUtils.calculateSubtotal(cartItems);
@@ -70,7 +72,7 @@ public class OrderServiceImpl implements OrderService {
         createOrderItems(order, cartItems);
 
         // Step 7: Clear Cart (Only if Payment Successful)
-        handleCartCleanup(cart.getId(), dummyPaymentResult.status());
+        cartUtils.cleanupCart(cart.getId(), dummyPaymentResult.status());
 
         // Step 8: Return OrderSummary
         return buildOrderSummary(order, dummyPaymentResult);
@@ -78,10 +80,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderSummaryResponse getOrderSummary(Integer orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
-        Transaction transaction = transactionRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found with OrderID: " + orderId));
+        Order order = orderUtils.fetchAndValidateOrder(orderId);
+        Transaction transaction = paymentUtils.fetchTransactionByOrderId(orderId);
         return orderMapper.toOrderSummary(order, transaction.getPaymentMethod().getPaymentType());
     }
 
@@ -123,11 +123,6 @@ public class OrderServiceImpl implements OrderService {
 
             orderItemRepository.save(orderItem);
         }
-    }
-
-    private void handleCartCleanup(Integer cartId, TransactionStatusEnum transactionStatus) {
-        if (transactionStatus == TransactionStatusEnum.SUCCESS)
-            cartItemRepository.deleteByCartId(cartId);
     }
 
     private OrderStatusEnum mapTransactionStatusToOrderStatus(TransactionStatusEnum transactionStatus) {

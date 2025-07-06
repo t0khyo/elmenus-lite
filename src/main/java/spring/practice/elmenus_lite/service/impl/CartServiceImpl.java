@@ -1,6 +1,5 @@
 package spring.practice.elmenus_lite.service.impl;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import spring.practice.elmenus_lite.dto.CartItemRequest;
@@ -16,6 +15,9 @@ import spring.practice.elmenus_lite.repostory.CartRepository;
 import spring.practice.elmenus_lite.repostory.CustomerRepository;
 import spring.practice.elmenus_lite.repostory.MenuItemRepository;
 import spring.practice.elmenus_lite.service.CartService;
+import spring.practice.elmenus_lite.util.CartUtils;
+import spring.practice.elmenus_lite.util.CustomerUtils;
+import spring.practice.elmenus_lite.util.MenuUtils;
 
 import java.util.Optional;
 
@@ -27,18 +29,18 @@ public class CartServiceImpl implements CartService {
     private final CustomerRepository customerRepository;
     private final MenuItemRepository menuItemRepository;
     private final CartMapper cartMapper;
+    private final CartUtils cartUtils;
+    private final CustomerUtils customerUtils;
+    private final MenuUtils menuUtils;
 
     @Override
     public CartResponse getCartByCustomerId(Integer customerId) {
-        return cartMapper.toCartResponse(getCartEntityByCustomerId(customerId));
+        return cartMapper.toCartResponse(cartUtils.fetchCartByCustomerId(customerId));
     }
 
     @Override
     public CartResponse updateCartItem(Integer cartId, Integer cartItemId, CartItemUpdateRequest cartItemUpdateRequest) {
-        if (!isCartItemBelongsToCart(cartId, cartItemId))
-            throw new EntityNotFoundException("CartItem not found with id: " + cartItemId);
-
-        CartItem cartItem = getCartItemById(cartItemId);
+        CartItem cartItem = cartUtils.fetchAndValidateCartItem(cartItemId, cartId);
 
         if (cartItemUpdateRequest.quantity() == 0) {
             // Delete Cart Item if updated quantity = 0
@@ -54,7 +56,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse addItemToCart(Integer customerId, CartItemRequest cartItemRequest) {
-        Customer customer = getCustomerById(customerId);
+        Customer customer = customerUtils.fetchCustomer(customerId);
         Cart cart = Optional.ofNullable(customer.getCart())
                 .orElse(new Cart().setCustomer(customer));
 
@@ -70,7 +72,7 @@ public class CartServiceImpl implements CartService {
             cartExistingItem.setQuantity(cartExistingItem.getQuantity() + cartItemRequest.quantity());
 
         } else {
-            MenuItem menuItem = getMenuItemById(cartItemRequest.menuItemId());
+            MenuItem menuItem = menuUtils.fetchAndValidateMenuItem(cartItemRequest.menuItemId());
 
             CartItem newCartItem = new CartItem()
                     .setCart(cart)
@@ -86,52 +88,22 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse removeCartItem(Integer cartId, Integer cartItemId) {
-        if (!isCartItemBelongsToCart(cartId, cartItemId))
-            throw new EntityNotFoundException("CartItem not found with id: " + cartItemId);
-
-        CartItem cartItem = getCartItemById(cartItemId);
+        CartItem cartItem = cartUtils.fetchAndValidateCartItem(cartItemId, cartId);
         cartItemRepository.delete(cartItem);
 
-        Cart cart = getCartById(cartId);
+        // todo add customer id using security context holder
+        // Cart cart = cartUtils.fetchAndValidateCart(cartId, CustomerId);
+        Cart cart = cartUtils.fetchAndValidateCart(cartId, 1);
         return cartMapper.toCartResponse(cart);
     }
 
     @Override
     public CartResponse clearCart(Integer cartId) {
-        Cart cart = getCartById(cartId);
+        // todo add customer id using security context holder
+        Cart cart = cartUtils.fetchAndValidateCart(cartId, 1);
         cartItemRepository.deleteAllInBatch(cart.getItems());
         cart.getItems().clear();
 
         return cartMapper.toCartResponse(cart);
-    }
-
-    // helper methods
-    private Cart getCartById(int cartId) {
-        return cartRepository.findById(cartId)
-                .orElseThrow(() -> new EntityNotFoundException("Cart not found with id: " + cartId));
-    }
-
-    private CartItem getCartItemById(int cartItemId) {
-        return cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new EntityNotFoundException("Cart Item not found with id: " + cartItemId));
-    }
-
-    private Boolean isCartItemBelongsToCart(int cartId, int cartItemId) {
-        return cartItemRepository.existsByIdAndCartId(cartItemId, cartId);
-    }
-
-    private Cart getCartEntityByCustomerId(int customerId) {
-        return cartRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("Cart Not found with customer id: " + customerId));
-    }
-
-    private Customer getCustomerById(int customerId) {
-        return customerRepository.findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + customerId));
-    }
-
-    private MenuItem getMenuItemById(int menuItemId) {
-        return menuItemRepository.findById(menuItemId)
-                .orElseThrow(() -> new EntityNotFoundException("Menu item not found with id: " + menuItemId));
     }
 }
