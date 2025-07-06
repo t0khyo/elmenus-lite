@@ -15,6 +15,10 @@ import spring.practice.elmenus_lite.service.CartService;
 public class CartController {
     private final CartService cartService;
 
+    public CartController(CartService cartService) {
+        this.cartService = cartService;
+    }
+
     @PostMapping("/{customerId}/items")
     public ResponseEntity<CartResponse> addItem(
             @PathVariable Integer customerId,
