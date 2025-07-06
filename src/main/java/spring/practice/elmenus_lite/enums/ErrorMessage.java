@@ -22,7 +22,12 @@ public enum ErrorMessage {
     PROMOTION_EXPIRED("Promotion code is not valid or has expired"),
     CART_EMPTY("Cart is empty"),
     MENU_ITEM_WRONG_RESTAURANT("Menu item {0} does not belong to the specified restaurant"),
-    MENU_ITEM_UNAVAILABLE("Menu item {0} is currently unavailable");
+    MENU_ITEM_UNAVAILABLE("Menu item {0} is currently unavailable"),
+    ORDER_TRANSACTION_NOT_FOUND("Transaction not found with order id: {0}"),
+    ORDER_NOT_FOUND("Order not found with id: {0}"),
+    CART_ITEM_DOES_NOT_BELONG_TO_CART("CartItem with id: {0} does not belong to Cart with id {1}."),
+    MENU_NOT_FOUND("Menu not found with id: {0}");
+
 
     private final String messageTemplate;
 
