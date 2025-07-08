@@ -19,7 +19,7 @@
             <column name="phone" type="VARCHAR(15)"/>
 
             <!--  Gender codes based on ISO/IEC 5218: 0=Unspecified, 1=Male, 2=Female  -->
-            <column name="gender" type="SMALLINT"/>
+            <column name="gender" type="SMALLINT" defaultValueNumeric="0"/>
 
             <column name="created_at" type="datetime" defaultValueComputed="NOW()">
                 <constraints nullable="false"/>

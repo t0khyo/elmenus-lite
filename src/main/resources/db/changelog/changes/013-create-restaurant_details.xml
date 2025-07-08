@@ -13,7 +13,7 @@
             </column>
 
             <column name="restaurant_id" type="INT">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
 
             <column name="description" type="TEXT"/>

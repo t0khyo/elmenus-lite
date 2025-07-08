@@ -30,15 +30,16 @@
     <include file="db/changelog/changes/019-create-cart.xml"/>
     <include file="db/changelog/changes/020-create-cart_item.xml"/>
 
+    <include file="db/changelog/changes/024-create-order_tracking.xml"/>
+
     <include file="db/changelog/changes/021-create-promotion.xml"/>
     <include file="db/changelog/changes/022-create-orders.xml"/>
     <include file="db/changelog/changes/023-create-order_item.xml"/>
-    <include file="db/changelog/changes/024-create-order_tracking.xml"/>
-    <include file="db/changelog/changes/025-create-transactions.xml"/>
-    <include file="db/changelog/changes/026-create-transaction_details.xml"/>
+    <include file="db/changelog/changes/025-create-transaction_details.xml"/>
+    <include file="db/changelog/changes/026-create-transactions.xml"/>
 
     <include file="db/changelog/changes/027-create-review.xml"/>
     <include file="db/changelog/changes/028-create-audit_type.xml"/>
     <include file="db/changelog/changes/029-create-auditing.xml"/>
-
+    <include file="db/changelog/changes/030-update-restaurant-details-location-nullable.xml"/>
 </databaseChangeLog>
