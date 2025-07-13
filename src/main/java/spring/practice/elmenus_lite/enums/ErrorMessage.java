@@ -26,7 +26,14 @@ public enum ErrorMessage {
     ORDER_TRANSACTION_NOT_FOUND("Transaction not found with order id: {0}"),
     ORDER_NOT_FOUND("Order not found with id: {0}"),
     CART_ITEM_DOES_NOT_BELONG_TO_CART("CartItem with id: {0} does not belong to Cart with id {1}."),
-    MENU_NOT_FOUND("Menu not found with id: {0}");
+    MENU_NOT_FOUND("Menu not found with id: {0}"),
+    EMAIL_NOT_REGISTERED("Email is not registered."),
+    INVALID_TOKEN_SIGNATURE("Invalid token signature."),
+    TOKEN_EXPIRED("Token expired."),
+    USERNAME_NOT_FOUND("No user found with the given email."),
+    EMAIL_ALREADY_EXISTS("Email already exists."),
+    ROLE_NOT_FOUND("Role not found: {0}"),
+    USER_TYPE_NOT_FOUND("User type not found: {0}");
 
 
     private final String messageTemplate;
