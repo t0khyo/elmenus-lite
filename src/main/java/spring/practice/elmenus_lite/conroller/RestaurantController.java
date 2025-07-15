@@ -1,5 +1,6 @@
 package spring.practice.elmenus_lite.conroller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -7,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring.practice.elmenus_lite.dto.request.RestaurantRequest;
 import spring.practice.elmenus_lite.dto.response.RestaurantResponse;
-import spring.practice.elmenus_lite.exception.InvalidInputException;
 import spring.practice.elmenus_lite.service.RestaurantService;
 
 import java.sql.Time;
@@ -26,31 +26,23 @@ public class RestaurantController {
 
 
     @PostMapping
-    public ResponseEntity<Integer> addRestaurant(@RequestBody RestaurantRequest request) {
+    public ResponseEntity<Void> addRestaurant(@RequestBody @Valid RestaurantRequest request) {
         // Basic validation for create operation
-        if (request.name() == null || request.name().isBlank()) {
-            throw new InvalidInputException("Restaurant name cannot be null or empty for creation.");
-        }
-        if (request.openTime() == null) {
-            throw new InvalidInputException("Open time cannot be null for creation.");
-        }
-        if (request.closeTime() == null) {
-            throw new InvalidInputException("Close time cannot be null for creation.");
-        }
-
-        Integer restaurantId = restaurantService.createRestaurant(request);
-        return new ResponseEntity<>(restaurantId, HttpStatus.CREATED);
+        request.validateTimes();
+        restaurantService.addRestaurant(request);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{restaurantId}")
     public ResponseEntity<Void> updateRestaurantProfile(@PathVariable Integer restaurantId,  @RequestBody RestaurantRequest request) {
+        request.validateTimes();
         restaurantService.updateRestaurantProfile(restaurantId, request);
         return ResponseEntity.ok().build();
     }
 
 
-    @GetMapping
-    public ResponseEntity<List<RestaurantResponse>> getRestaurants(
+    @PostMapping
+    public ResponseEntity<List<RestaurantResponse>> getRestaurantsByFilters(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Time time,
@@ -58,14 +50,14 @@ public class RestaurantController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
 
-        List<RestaurantResponse> restaurants = restaurantService.getRestaurants(
+        List<RestaurantResponse> restaurants = restaurantService.getRestaurantsByFilters(
                 category, name, time, minRating, page, size);
         return ResponseEntity.ok(restaurants);
     }
 
     @GetMapping("/{restaurantId}")
-    public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable Integer restaurantId) {
-        RestaurantResponse restaurant = restaurantService.getRestaurantById(restaurantId);
+    public ResponseEntity<RestaurantResponse> getRestaurant(@PathVariable Integer restaurantId) {
+        RestaurantResponse restaurant = restaurantService.getRestaurant(restaurantId);
         return ResponseEntity.ok(restaurant);
     }
     @GetMapping("/search")
@@ -75,8 +67,8 @@ public class RestaurantController {
     }
 
     @GetMapping("/top-rated")
-    public ResponseEntity<List<RestaurantResponse>> getTopRatedRestaurants(@RequestParam(defaultValue = "10") Integer limit) {
-        List<RestaurantResponse> restaurants = restaurantService.getTopRatedRestaurants(limit);
+    public ResponseEntity<List<RestaurantResponse>> getTopRatedRestaurants() {
+        List<RestaurantResponse> restaurants = restaurantService.getTopRatedRestaurants();
         return ResponseEntity.ok(restaurants);
     }
 

@@ -5,8 +5,8 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import spring.practice.elmenus_lite.model.audit.Auditable;
 
-import java.sql.Time;
 import java.time.Duration;
+import java.time.LocalTime;
 
 
 @Getter
@@ -37,10 +37,24 @@ public class RestaurantDetails extends Auditable {
     private Duration estimatedDeliveryTime;
 
     @Column(name = "open_time", nullable = false)
-    private Time openTime;
+    private LocalTime openTime;
 
     @Column(name = "close_time", nullable = false)
-    private Time closeTime;
+    private LocalTime closeTime;
+
+    @Builder.Default
+    @Column(name = "average_rating", nullable = false)
+    private Double averageRating = 0.0;
+
+    @Builder.Default
+    @Column(name = "review_count", nullable = false)
+    private Integer reviewCount = 0;
 
     // Todo: add geolocation
+
+    public static RestaurantDetails buildRestaurantDetails(Restaurant existingRestaurant) {
+        return RestaurantDetails.builder()
+                .restaurant(existingRestaurant)
+                .build();
+    }
 }
