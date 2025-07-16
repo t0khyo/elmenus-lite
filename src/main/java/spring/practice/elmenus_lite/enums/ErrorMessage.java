@@ -30,10 +30,11 @@ public enum ErrorMessage {
     EMAIL_NOT_REGISTERED("Email is not registered."),
     INVALID_TOKEN_SIGNATURE("Invalid token signature."),
     TOKEN_EXPIRED("Token expired."),
-    USERNAME_NOT_FOUND("No user found with the given email."),
+    EMAIL_NOT_FOUND("No user found with the given email."),
     EMAIL_ALREADY_EXISTS("Email already exists."),
     ROLE_NOT_FOUND("Role not found: {0}"),
-    USER_TYPE_NOT_FOUND("User type not found: {0}");
+    USER_TYPE_NOT_FOUND("User type not found: {0}"),
+    JWT_GENERATION_FAILED("Failed to generate access token");
 
 
     private final String messageTemplate;
