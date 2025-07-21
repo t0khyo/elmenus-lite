@@ -36,7 +36,7 @@ public class RestaurantDetails extends Auditable {
     private String phone;
 
     @Type(PostgreSQLIntervalType.class)
-    @Column(name = "estimated_delivery_time")
+    @Column(name = "estimated_delivery_time", columnDefinition = "interval")
     private Duration estimatedDeliveryTime;
 
     @Column(name = "open_time", nullable = false)
