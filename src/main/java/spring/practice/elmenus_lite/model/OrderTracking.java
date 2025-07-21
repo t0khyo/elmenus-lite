@@ -26,7 +26,7 @@ public class OrderTracking {
 
     // TODO add geolocation
 
-    @Type(value = PostgreSQLIntervalType.class)
+    @Type(PostgreSQLIntervalType.class)
     @Column(name = "estimated_time")
     private Duration estimatedTime;
 }
