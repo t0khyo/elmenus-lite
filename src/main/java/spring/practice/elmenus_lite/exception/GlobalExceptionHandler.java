@@ -1,18 +1,22 @@
 package spring.practice.elmenus_lite.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import spring.practice.elmenus_lite.dto.response.ErrorResponse;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 //// Global Exception Handler to centralize error responses
-@ControllerAdvice
+@Slf4j
+@RestControllerAdvice
 class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -90,6 +94,8 @@ class GlobalExceptionHandler {
                 .message("An unexpected error occurred: " + ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
+
+        ex.printStackTrace();
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
