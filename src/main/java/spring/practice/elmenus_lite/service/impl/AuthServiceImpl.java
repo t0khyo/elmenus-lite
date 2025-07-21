@@ -1,6 +1,5 @@
 package spring.practice.elmenus_lite.service.impl;
 
-import com.nimbusds.jose.JOSEException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +17,7 @@ import spring.practice.elmenus_lite.enums.UserTypeName;
 import spring.practice.elmenus_lite.exception.EmailAlreadyExistsException;
 import spring.practice.elmenus_lite.model.*;
 import spring.practice.elmenus_lite.repostory.CustomerRepository;
+import spring.practice.elmenus_lite.repostory.RoleRepository;
 import spring.practice.elmenus_lite.repostory.UserRepository;
 import spring.practice.elmenus_lite.repostory.UserTypeRepository;
 import spring.practice.elmenus_lite.security.service.JwtService;

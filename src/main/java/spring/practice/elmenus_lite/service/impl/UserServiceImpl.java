@@ -10,7 +10,7 @@ import spring.practice.elmenus_lite.enums.ErrorMessage;
 import spring.practice.elmenus_lite.enums.RoleName;
 import spring.practice.elmenus_lite.exception.EmailAlreadyExistsException;
 import spring.practice.elmenus_lite.model.Role;
-import spring.practice.elmenus_lite.model.RoleRepository;
+import spring.practice.elmenus_lite.repostory.RoleRepository;
 import spring.practice.elmenus_lite.model.User;
 import spring.practice.elmenus_lite.repostory.UserRepository;
 import spring.practice.elmenus_lite.service.UserService;
