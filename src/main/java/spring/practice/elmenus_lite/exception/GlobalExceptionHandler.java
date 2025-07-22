@@ -95,7 +95,6 @@ class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
-        ex.printStackTrace();
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
