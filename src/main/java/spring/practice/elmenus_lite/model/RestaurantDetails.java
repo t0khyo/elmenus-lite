@@ -1,8 +1,10 @@
 package spring.practice.elmenus_lite.model;
 
+import com.vladmihalcea.hibernate.type.interval.PostgreSQLIntervalType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.Type;
 import spring.practice.elmenus_lite.model.audit.Auditable;
 
 import java.sql.Time;
@@ -33,7 +35,8 @@ public class RestaurantDetails extends Auditable {
     @Column(name = "phone", length = 15)
     private String phone;
 
-    @Column(name = "estimated_delivery_time")
+    @Type(PostgreSQLIntervalType.class)
+    @Column(name = "estimated_delivery_time", columnDefinition = "interval")
     private Duration estimatedDeliveryTime;
 
     @Column(name = "open_time", nullable = false)

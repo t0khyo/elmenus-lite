@@ -1,6 +1,9 @@
 package spring.practice.elmenus_lite.config;
 
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -9,7 +12,9 @@ import java.util.Optional;
 public class AuditorAwareConfig implements AuditorAware<String> {
     @Override
     public Optional<String> getCurrentAuditor() {
-        // TODO: should be replaced with actual user info
-        return Optional.of("system");
+        return Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getName);
     }
 }

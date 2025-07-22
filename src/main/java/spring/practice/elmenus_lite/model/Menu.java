@@ -2,10 +2,7 @@ package spring.practice.elmenus_lite.model;
 
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import spring.practice.elmenus_lite.model.audit.Auditable;
 
@@ -19,6 +16,7 @@ import java.util.Set;
 @Table(name = "menu")
 @NoArgsConstructor
 @Builder
+@AllArgsConstructor
 public class Menu extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
