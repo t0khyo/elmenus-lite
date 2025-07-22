@@ -11,11 +11,11 @@ public record SignupRequest(
         @Length(min = 8, max = 255)
         String password,
 
-        @NotBlank
+//        @NotBlank
         @Length(max = 50)
         String firstName,
 
-        @NotBlank
+//        @NotBlank
         @Length(max = 50)
         String lastName
 ) {
