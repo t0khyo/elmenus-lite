@@ -11,7 +11,7 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
     List<Review> findByRestaurantId(Integer restaurantId);
 
-    @Query(value = "SELECT r.restaurant.id, AVG(r.rating) FROM Review r GROUP BY r.restaurant.id HAVING COUNT(r.rating) >= ?1 ORDER BY AVG(r.rating) DESC")
-    List<Object[]> findAverageRatingsByRestaurant(Long minReviewCount);
+    @Query(value = "SELECT r.restaurant.id, AVG(r.rating) FROM Review r GROUP BY r.restaurant.id")
+    List<Object[]> findAverageRatingsGroupedByRestaurant();
 
 }

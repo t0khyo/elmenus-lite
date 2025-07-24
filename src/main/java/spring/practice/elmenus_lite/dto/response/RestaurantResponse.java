@@ -18,6 +18,7 @@ public class RestaurantResponse {
     private Time openTime;
     private Time closeTime;
     private Boolean active;
-    private Double averageRating; // Nullable
+    private Double averageRating;
+    private Integer reviewCount;
     private Set<CategoryResponse> categories;
 }

@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import spring.practice.elmenus_lite.dto.request.RestaurantRequest;
 import spring.practice.elmenus_lite.dto.response.RestaurantResponse;
 import spring.practice.elmenus_lite.exception.DuplicateResourceException;
@@ -55,42 +56,62 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public Integer createRestaurant(RestaurantRequest request) {
-        log.info("Attempting to create a new restaurant with name: {}", request.name());
+    public void addRestaurant(RestaurantRequest request) {
+        log.info("Attempting to create a new restaurant with name: {}", request.getName());
 
         // Business validation: Check for unique restaurant name
-        if (restaurantRepository.existsByName(request.name())) {
-            throw new DuplicateResourceException("Restaurant with name '" + request.name() + "' already exists.");
-        }
+        validateUniqueRestaurantName(request);
 
         // Map DTO to Entity for Restaurant. RestaurantDetails is created within the mapper.
-        Restaurant restaurant = restaurantMapper.toRestaurantEntity(request);
-//        restaurant.setActive(true); // Default to active for new restaurants
-
-        // Link RestaurantDetails to Restaurant after mapping
-        RestaurantDetails details = restaurant.getRestaurantDetails();
-        if (details != null) {
-            details.setRestaurant(restaurant); // Ensure bi-directional link
-        } else {
-            // This should ideally not happen if mapper's default method is robust
-            throw new InvalidInputException("Restaurant details (location, times) cannot be null during creation.");
-        }
+        Restaurant restaurant = mapToRestaurant(request);
 
         // Save the restaurant. Due to CascadeType.ALL on restaurantDetails, it will be saved too.
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         log.info("Successfully created restaurant with ID: {}", savedRestaurant.getId());
-        return savedRestaurant.getId();
     }
 
     @Override
-    public List<RestaurantResponse> getRestaurants(String category, String name, Time time, Integer minRating, Integer page, Integer size) {
+    public List<RestaurantResponse> getRestaurantsByFilters(String category, String name, Time time, Integer minRating, Integer page, Integer size) {
         log.info("Retrieving restaurants with filters - category: {}, name: {}, time: {}, minRating: {}, page: {}, size: {}",
                 category, name, time, minRating, page, size);
 
 
         // Build Specification for dynamic querying
-        Specification<Restaurant> spec = Specification.where(null);
+        Specification<Restaurant> spec = buildRestaurantSpecification(category, name, time);
 
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<Restaurant> restaurants = restaurantRepository.findAll(spec, pageable).getContent();
+        log.info("Applied pagination: page {}, size {}", page, size);
+        List<RestaurantResponse> responses = restaurants.stream()
+                .map(restaurantMapper::toRestaurantResponse)
+                .collect(Collectors.toList());
+
+        return responses;
+    }
+
+    private  List<RestaurantResponse> filterResponsesByRating(Integer minRating, List<RestaurantResponse> responses, Map<Integer, Double> avgRatingsMap) {
+        return responses.stream()
+                .map(r -> {
+                    r.setAverageRating(avgRatingsMap.getOrDefault(r.getId(), 0.0));
+                    return r;
+                }) // Set avg rating
+                .filter(r -> r.getAverageRating() >= minRating) // Filter by minRating
+                .collect(Collectors.toList());
+    }
+
+    private Map<Integer, Double> getAvgRatingsMap() {
+        List<Object[]> avgRatingsData = reviewRepository.findAverageRatingsGroupedByRestaurant();
+        Map<Integer, Double> avgRatingsMap = avgRatingsData.stream()
+                .collect(Collectors.toMap(
+                        arr -> (Integer) arr[0], // restaurantId
+                        arr -> ((Number) arr[1]).doubleValue() // average rating
+                ));
+        return avgRatingsMap;
+    }
+
+    private Specification<Restaurant> buildRestaurantSpecification(String category, String name, Time time) {
+        Specification<Restaurant> spec = Specification.where(null);
         if (name != null && !name.isBlank()) {
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
         }
@@ -111,45 +132,7 @@ public class RestaurantServiceImpl implements RestaurantService {
                 );
             });
         }
-        List<Restaurant> restaurants;
-        if (page != null && size != null && page >= 0 && size > 0) {
-            Pageable pageable = PageRequest.of(page, size);
-            restaurants = restaurantRepository.findAll(spec, pageable).getContent();
-            log.info("Applied pagination: page {}, size {}", page, size);
-        }
-        else {
-            // If no valid pagination parameters, fetch all matching results
-            restaurants = restaurantRepository.findAll(spec);
-            log.info("No pagination applied. Fetched {} restaurants.", restaurants.size());
-        }
-
-        List<RestaurantResponse> responses = restaurants.stream()
-                .map(restaurantMapper::toRestaurantResponse)
-                .collect(Collectors.toList());
-
-        // Apply minRating filtering and average rating calculation post-query
-        // This is done after fetching the primary results
-        if (minRating != null) {
-            if (minRating < 1 || minRating > 5) {
-                throw new InvalidInputException("Minimum rating must be between 1 and 5.");
-            }
-            List<Object[]> avgRatingsData = reviewRepository.findAverageRatingsByRestaurant(1L); // Assume at least 1 review to calculate avg
-            Map<Integer, Double> avgRatingsMap = avgRatingsData.stream()
-                    .collect(Collectors.toMap(
-                            arr -> (Integer) arr[0], // restaurantId
-                            arr -> ((Number) arr[1]).doubleValue() // average rating
-                    ));
-
-            responses = responses.stream()
-                    .map(r -> {
-                        r.setAverageRating(avgRatingsMap.getOrDefault(r.getId(), 0.0));
-                        return r;
-                    }) // Set avg rating
-                    .filter(r -> r.getAverageRating() >= minRating) // Filter by minRating
-                    .collect(Collectors.toList());
-            log.info("Applied minimum rating filter: {}", minRating);
-        }
-        return responses;
+        return spec;
     }
 
     @Override
@@ -159,80 +142,33 @@ public class RestaurantServiceImpl implements RestaurantService {
             throw new InvalidInputException("Search keyword cannot be empty.");
         }
 
-        Specification<Restaurant> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
+        // full text search
+        List<Restaurant> restaurants = restaurantRepository.searchRestaurantsByKeyword(keyword);
 
-            predicates.add(cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
-
-            Join<Restaurant, RestaurantDetails> detailsJoin = root.join("restaurantDetails", JoinType.LEFT);
-            predicates.add(cb.like(cb.lower(detailsJoin.get("description")), "%" + keyword.toLowerCase() + "%"));
-
-            Join<Restaurant, RestaurantCategory> restaurantCategoryJoin = root.join("restaurantCategories", JoinType.LEFT);
-            Join<RestaurantCategory, Category> categoryJoin = restaurantCategoryJoin.join("category", JoinType.LEFT);
-            predicates.add(cb.like(cb.lower(categoryJoin.get("name")), "%" + keyword.toLowerCase() + "%"));
-
-            assert query != null;
-            query.distinct(true);
-
-            return cb.or(predicates.toArray(new Predicate[0]));
-        };
-
-        List<Restaurant> restaurants = restaurantRepository.findAll(spec);
         List<RestaurantResponse> responses = restaurants.stream()
                 .map(restaurantMapper::toRestaurantResponse)
                 .collect(Collectors.toList());
-
-        if (!responses.isEmpty()) {
-            List<Object[]> avgRatingsData = reviewRepository.findAverageRatingsByRestaurant(1L);
-            Map<Integer, Double> avgRatingsMap = avgRatingsData.stream()
-                    .collect(Collectors.toMap(
-                            arr -> (Integer) arr[0],
-                            arr -> ((Number) arr[1]).doubleValue()
-                    ));
-            responses.forEach(r -> r.setAverageRating(avgRatingsMap.getOrDefault(r.getId(), 0.0)));
-        }
 
         log.info("Found {} restaurants matching keyword '{}'", responses.size(), keyword);
         return responses;
     }
 
     @Override
-    public List<RestaurantResponse> getTopRatedRestaurants(Integer limit) {
-        log.info("Retrieving top {} rated restaurants.", limit);
-        if (limit == null || limit <= 0) {
-            throw new InvalidInputException("Limit must be a positive integer.");
-        }
+    public List<RestaurantResponse> getTopRatedRestaurants() {
 
-        // Fetch average ratings for all restaurants that have at least one review.
-        // The query returns List<Object[]> where each Object[] is [restaurantId, averageRating]
-        List<Object[]> avgRatingsData = reviewRepository.findAverageRatingsByRestaurant(1L); // min 1 review
+        List<Integer> RestaurantIds = restaurantDetailsRepository.findTop10RestaurantIdsNative();
 
-        if (avgRatingsData.isEmpty()) {
+        if (RestaurantIds.isEmpty()) {
             throw new ResourceNotFoundException("No restaurants found with sufficient review data to determine top ratings.");
         }
 
-        // Convert the raw data to a map for easy lookup
-        Map<Integer, Double> restaurantRatingsMap = avgRatingsData.stream()
-                .collect(Collectors.toMap(
-                        arr -> (Integer) arr[0], // restaurantId
-                        arr -> ((Number) arr[1]).doubleValue() // average rating
-                ));
-
-        // Get the IDs of the top-rated restaurants based on the map and limit
-        List<Integer> topRatedRestaurantIds = restaurantRatingsMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // Sort by rating descending
-                .limit(limit) // Apply the limit
-                .map(Map.Entry::getKey) // Get only the restaurant IDs
-                .collect(Collectors.toList());
 
         // Fetch full Restaurant entities for the top-rated IDs
-        List<Restaurant> topRatedRestaurants = restaurantRepository.findAllById(topRatedRestaurantIds);
+        List<Restaurant> topRatedRestaurants = restaurantRepository.findAllById(RestaurantIds);
 
         // Map entities to DTOs and set their average ratings
         List<RestaurantResponse> responses = topRatedRestaurants.stream()
                 .map(restaurantMapper::toRestaurantResponse)
-                .peek(dto -> dto.setAverageRating(restaurantRatingsMap.get(dto.getId()))) // Set the pre-calculated avg rating
-                .sorted(Comparator.comparing(RestaurantResponse::getAverageRating, Comparator.reverseOrder())) // Re-sort to ensure correct order
                 .collect(Collectors.toList());
 
         log.info("Found {} top-rated restaurants.", responses.size());
@@ -241,10 +177,9 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public RestaurantResponse getRestaurantById(Integer restaurantId) {
+    public RestaurantResponse getRestaurant(Integer restaurantId) {
         log.info("Retrieving restaurant with ID: {}", restaurantId);
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with ID: " + restaurantId));
+        Restaurant restaurant = getExistingRestaurant(restaurantId);
 
         RestaurantResponse response = restaurantMapper.toRestaurantResponse(restaurant);
 
@@ -267,44 +202,10 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public void updateRestaurantProfile(Integer restaurantId, RestaurantRequest request) {
         log.info("Attempting to update restaurant with ID: {}", restaurantId);
-
-        // Basic validation for update operation
-        if (request.name() == null && request.description() == null &&
-                request.phone() == null && request.openTime() == null &&
-                request.closeTime() == null ) {
-            throw new InvalidInputException("At least one field (name, description, phone, openTime, closeTime, active) must be provided for update.");
-        }
-
-        Restaurant existingRestaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with ID: " + restaurantId));
-
-        // Business validation: Check for unique name if name is being updated
-        if (request.name() != null && !request.name().isBlank() &&
-                !request.name().equals(existingRestaurant.getName())) {
-            // make sure it is unique name
-            if (restaurantRepository.findByNameAndIdNot(request.name(), restaurantId).isPresent()) {
-                throw new DuplicateResourceException("Restaurant with name '" + request.name() + "' already exists.");
-            }
-            existingRestaurant.setName(request.name());
-        }
-
-        //creating details if they don't exist:
-        RestaurantDetails details = existingRestaurant.getRestaurantDetails();
-        if (details == null) {
-            details = RestaurantDetails.builder()
-                    .restaurant(existingRestaurant)
-                    .id(existingRestaurant.getId())
-                    .build();
-            existingRestaurant.setRestaurantDetails(details);
-        }
-
-        if (request.description() != null) details.setDescription(request.description());
-        if (request.phone() != null) details.setPhone(request.phone());
-        if (request.openTime() != null) details.setOpenTime(request.openTime());
-        if (request.closeTime() != null) details.setCloseTime(request.closeTime());
-        restaurantDetailsRepository.save(details); // Explicitly save details if new or just updated its own fields
-
-
+        Restaurant existingRestaurant = getExistingRestaurant(restaurantId);
+        //creating details if they don't exist & update it if exits
+        RestaurantDetails restaurantDetails = buildRestaurantDetails(existingRestaurant, request);
+        restaurantDetailsRepository.save(restaurantDetails); // Explicitly save details if new or just updated its own fields
         restaurantRepository.save(existingRestaurant); // Save the main restaurant entity
         log.info("Restaurant with ID: {} updated successfully.", restaurantId);
     }
@@ -313,27 +214,31 @@ public class RestaurantServiceImpl implements RestaurantService {
     public void assignCategoryToRestaurant(Integer restaurantId, Integer categoryId) {
         log.info("Assigning category ID {} to restaurant ID {}.", categoryId, restaurantId);
 
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with ID: " + restaurantId));
-
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + categoryId));
-
-        // Check if association already exists (idempotency)
         if (restaurantCategoryRepository.findByIdRestaurantIdAndIdCategoryId(restaurantId, categoryId).isPresent()) {
             log.warn("Category ID {} is already assigned to restaurant ID {}. Skipping assignment.", categoryId, restaurantId);
-            return; // Or throw a specific "AlreadyExists" exception if preferred
+            throw new DuplicateResourceException("Category ID "+categoryId+" is already assigned to restaurant ID " + restaurantId);
         }
 
+        Restaurant restaurant = getExistingRestaurant(restaurantId);
+        Category category = getExistingCategory(categoryId);
 
-        RestaurantCategory restaurantCategory = RestaurantCategory.builder()
+        RestaurantCategory restaurantCategory = buildRestaurantCategory(restaurantId, categoryId, restaurant, category);
+
+        restaurantCategoryRepository.save(restaurantCategory);
+        log.info("Successfully assigned category ID {} to restaurant ID {}.", categoryId, restaurantId);
+    }
+
+    private  RestaurantCategory buildRestaurantCategory(Integer restaurantId, Integer categoryId, Restaurant restaurant, Category category) {
+        return RestaurantCategory.builder()
                 .id(new RestaurantCategory.RestaurantCategoryId(restaurantId, categoryId))
                 .restaurant(restaurant)
                 .category(category)
                 .build();
+    }
 
-        restaurantCategoryRepository.save(restaurantCategory);
-        log.info("Successfully assigned category ID {} to restaurant ID {}.", categoryId, restaurantId);
+    private Category getExistingCategory(Integer categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + categoryId));
     }
 
     @Override
@@ -341,10 +246,8 @@ public class RestaurantServiceImpl implements RestaurantService {
         log.info("Removing category ID {} from restaurant ID {}.", categoryId, restaurantId);
 
         // Check if restaurant and category exist
-        restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with ID: " + restaurantId));
-        categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + categoryId));
+        getExistingRestaurant(restaurantId);
+        getExistingCategory(categoryId);
 
         // Check if restaurant have this category before attempting to delete
         RestaurantCategory.RestaurantCategoryId id = new RestaurantCategory.RestaurantCategoryId(restaurantId, categoryId);
@@ -354,4 +257,52 @@ public class RestaurantServiceImpl implements RestaurantService {
         restaurantCategoryRepository.delete(association);
         log.info("Successfully removed category ID {} from restaurant ID {}.", categoryId, restaurantId);
     }
+
+    private void validateUniqueRestaurantName(RestaurantRequest request) {
+        if (restaurantRepository.existsByName(request.getName())) {
+            throw new DuplicateResourceException("Restaurant with name '" + request.getName() + "' already exists.");
+        }
+    }
+
+    private Restaurant mapToRestaurant(RestaurantRequest request) {
+
+        Restaurant restaurant = restaurantMapper.toRestaurantEntity(request);
+        // Link RestaurantDetails to Restaurant after mapping
+        RestaurantDetails details = restaurant.getRestaurantDetails();
+        if (details != null) {
+            details.setRestaurant(restaurant); // Ensure bi-directional link
+        } else {
+            // This should ideally not happen if mapper's default method is robust
+            throw new InvalidInputException("Restaurant details (location, times) cannot be null during creation.");
+        }
+        return restaurant ;
+    }
+
+    private Restaurant getExistingRestaurant(Integer restaurantId) {
+        return restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with ID: " + restaurantId));
+    }
+
+    private RestaurantDetails buildRestaurantDetails(Restaurant existingRestaurant, RestaurantRequest request) {
+
+        // update name
+        if(StringUtils.hasText(request.getName())) {
+            validateUniqueRestaurantName(request);
+            existingRestaurant.setName(request.getName());
+        }
+
+        RestaurantDetails details = existingRestaurant.getRestaurantDetails();
+        if (details == null) {
+            details = RestaurantDetails.buildRestaurantDetails(existingRestaurant);
+            existingRestaurant.setRestaurantDetails(details);
+        }
+
+        if (request.getDescription() != null) details.setDescription(request.getDescription());
+        if (request.getPhone() != null) details.setPhone(request.getPhone());
+        if (request.getOpenTime() != null) details.setOpenTime(request.getOpenTime());
+        if (request.getCloseTime() != null) details.setCloseTime(request.getCloseTime());
+
+        return details;
+    }
+
 }
