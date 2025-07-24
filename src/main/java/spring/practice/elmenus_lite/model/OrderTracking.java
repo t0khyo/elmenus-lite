@@ -17,7 +17,7 @@ import java.time.Duration;
 @Setter
 @Accessors(chain = true)
 @Entity
-@Table(name = "")
+@Table(name = "order_tracking")
 @NoArgsConstructor
 public class OrderTracking {
     @Id
@@ -26,7 +26,7 @@ public class OrderTracking {
 
     // TODO add geolocation
 
-    @Type(value = PostgreSQLIntervalType.class)
-    @Column(name = "estimated_time")
+    @Type(PostgreSQLIntervalType.class)
+    @Column(name = "estimated_time", columnDefinition = "interval")
     private Duration estimatedTime;
 }
