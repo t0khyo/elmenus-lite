@@ -1,7 +1,8 @@
-package spring.practice.elmenus_lite.util;
+package spring.practice.elmenus_lite.service.helper;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import spring.practice.elmenus_lite.enums.ErrorMessage;
 import spring.practice.elmenus_lite.exception.InvalidOrderException;
@@ -13,12 +14,15 @@ import spring.practice.elmenus_lite.model.enums.TransactionStatusEnum;
 import spring.practice.elmenus_lite.repostory.CartItemRepository;
 import spring.practice.elmenus_lite.repostory.CartRepository;
 import spring.practice.elmenus_lite.repostory.MenuItemRepository;
+import spring.practice.elmenus_lite.util.OwnershipValidator;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class CartUtils {
+public class CartHelper {
     private final CartRepository cartRepository;
     private final OwnershipValidator ownershipValidator;
     private final CartItemRepository cartItemRepository;
@@ -42,29 +46,37 @@ public class CartUtils {
         return cartItemRepository.findById(cartItemId).get();
     }
 
-    public List<CartItem> validateCartItems(Integer cartId, Integer restaurantId) {
+    public List<CartItem> validateCartItems(Integer cartId) {
         List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);
+        List<CartItem> itemsToUpdate = new ArrayList<>();
 
         if (cartItems.isEmpty()) {
             throw new InvalidOrderException(ErrorMessage.CART_EMPTY.getFinalMessage());
         }
 
-        // Validate all cart items belong to the specified restaurant and are available
+        // Validate all cart items price and are available
         for (CartItem cartItem : cartItems) {
             MenuItem menuItem = menuItemRepository.findById(cartItem.getMenuItem().getId())
                     .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.MENU_ITEM_NOT_FOUND.getFinalMessage(cartItem.getMenuItem().getId())));
-
-            // Check if menu item belongs to the specified restaurant
-            if (!menuItem.getMenu().getRestaurant().getId().equals(restaurantId)) {
-                throw new InvalidOrderException(
-                        ErrorMessage.MENU_ITEM_WRONG_RESTAURANT.getFinalMessage(menuItem.getName())
-                );
-            }
 
             // Check if menu item is available
             if (!menuItem.getAvailable()) {
                 throw new InvalidOrderException(ErrorMessage.MENU_ITEM_UNAVAILABLE.getFinalMessage(menuItem.getName()));
             }
+            // Check for a price changed
+            if (cartItem.getMenuItem().getPrice().compareTo(menuItem.getPrice()) != 0) {
+                // Update the price in the CartItem object
+                cartItem.getMenuItem().setPrice(menuItem.getPrice());
+
+                // Add the updated item to our list for a later batch save
+                itemsToUpdate.add(cartItem);
+            }
+        }
+
+        //BATCH UPDATE
+        // If there are any items with updated prices, save them all at once.
+        if (!itemsToUpdate.isEmpty()) {
+            cartItemRepository.saveAll(itemsToUpdate);
         }
 
         return cartItems;
@@ -79,6 +91,21 @@ public class CartUtils {
         if(!cartItemRepository.existsByIdAndCartId(cartItemId, cartId)) {
             throw new EntityNotFoundException(ErrorMessage.CART_ITEM_DOES_NOT_BELONG_TO_CART.getFinalMessage(cartItemId, cartId));
         }
+    }
+
+    public BigDecimal calculateSubtotal(List<CartItem> cartItems) {
+        BigDecimal subtotal = BigDecimal.ZERO;
+
+        for (CartItem cartItem : cartItems) {
+            MenuItem menuItem = menuItemRepository.findById(cartItem.getMenuItem().getId())
+                    .orElseThrow(() -> new InvalidOrderException(
+                            ErrorMessage.MENU_ITEM_NOT_FOUND.getFinalMessage(cartItem.getMenuItem().getId()))
+                    );
+            BigDecimal itemTotal = menuItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            subtotal = subtotal.add(itemTotal);
+        }
+
+        return subtotal;
     }
 
 }
