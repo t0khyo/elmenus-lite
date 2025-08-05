@@ -1,17 +1,22 @@
 package spring.practice.elmenus_lite.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import spring.practice.elmenus_lite.dto.OrderRequest;
 import spring.practice.elmenus_lite.dto.OrderSummaryResponse;
 import spring.practice.elmenus_lite.dto.PaymentResult;
+import spring.practice.elmenus_lite.enums.ErrorMessage;
 import spring.practice.elmenus_lite.exception.ResourceNotFoundException;
 import spring.practice.elmenus_lite.mapper.OrderMapper;
 import spring.practice.elmenus_lite.model.*;
 import spring.practice.elmenus_lite.model.enums.OrderStatusEnum;
 import spring.practice.elmenus_lite.model.enums.TransactionStatusEnum;
-import spring.practice.elmenus_lite.repostory.*;
+import spring.practice.elmenus_lite.repostory.OrderItemRepository;
+import spring.practice.elmenus_lite.repostory.OrderRepository;
+import spring.practice.elmenus_lite.repostory.OrderStatusRepository;
 import spring.practice.elmenus_lite.service.OrderService;
 import spring.practice.elmenus_lite.service.PromotionService;
 import spring.practice.elmenus_lite.service.helper.CartHelper;
@@ -25,16 +30,13 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j // For logging
 public class OrderServiceImpl implements OrderService {
-    private final OrderUtils orderUtils;
-    private final CustomerUtils customerUtils;
-    private final CartItemRepository cartItemRepository;
+    private final OrderMapper orderMapper;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderStatusRepository orderStatusRepository;
-    private final TransactionRepository transactionRepository;
-    private final OrderMapper orderMapper;
-    private final RestaurantUtils restaurantUtils;
+    //TODO: Refactor
     private final PaymentUtils paymentUtils;
     private final PromotionService promotionService;
     private final CartHelper cartHelper;
@@ -53,7 +55,9 @@ public class OrderServiceImpl implements OrderService {
                 orderRequest.preferredPaymentSettingId(), customer.getId());
 
         // Step 2: Cart Validation
-        List<CartItem> cartItems = cartUtils.validateCartItems(cart.getId(), restaurant.getId());
+        Cart cart = getCart(customer);
+
+        List<CartItem> cartItems = cartHelper.validateCartItems(cart.getId());
         log.info("Cart found with {} items.", cartItems.size());
 
         // Step 3: Calculate Totals
@@ -82,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderSummaryResponse getOrderSummary(Integer orderId) {
-        Order order = orderUtils.fetchAndValidateOrder(orderId);
+        Order order = fetchAndValidateOrder(orderId);
         Transaction transaction = paymentUtils.fetchTransactionByOrderId(orderId);
         return orderMapper.toOrderSummary(order, transaction.getPaymentMethod().getPaymentType());
     }
@@ -146,5 +150,19 @@ public class OrderServiceImpl implements OrderService {
                 .paymentType(paymentResult.paymentMethod())
                 .build();
     }
+
+    private  Cart getCart(Customer customer) {
+        Cart cart = customer.getCart();
+        if (cart == null) {
+            throw new ResourceNotFoundException("No Cart for Customer:" + customer.getId());
+        }
+        return cart;
+    }
+
+    public Order fetchAndValidateOrder(Integer orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.ORDER_NOT_FOUND.getFinalMessage(orderId)));
+    }
+
 
 }
