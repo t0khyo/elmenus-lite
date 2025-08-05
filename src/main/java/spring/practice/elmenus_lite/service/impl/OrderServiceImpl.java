@@ -13,7 +13,10 @@ import spring.practice.elmenus_lite.model.enums.OrderStatusEnum;
 import spring.practice.elmenus_lite.model.enums.TransactionStatusEnum;
 import spring.practice.elmenus_lite.repostory.*;
 import spring.practice.elmenus_lite.service.OrderService;
-import spring.practice.elmenus_lite.util.*;
+import spring.practice.elmenus_lite.service.PromotionService;
+import spring.practice.elmenus_lite.service.helper.CartHelper;
+import spring.practice.elmenus_lite.service.helper.CustomerHelper;
+import spring.practice.elmenus_lite.util.PaymentUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,33 +36,32 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final RestaurantUtils restaurantUtils;
     private final PaymentUtils paymentUtils;
-    private final CartUtils cartUtils;
+    private final PromotionService promotionService;
+    private final CartHelper cartHelper;
+    private final CustomerHelper customerHelper;
 
     @Override
     @Transactional
-    public OrderSummaryResponse placeOrder(OrderRequest orderRequest) {
-        //TODO: Logging
-
+    public OrderSummaryResponse placeOrder(OrderRequest orderRequest,Integer userID) {
+        log.info("Starting order placement for customer: {}", userID);
         // Step 1: Entity Fetching & Validation
-        Customer customer = customerUtils.fetchCustomer(orderRequest.customerId());
-        Cart cart = customer.getCart();
+        Customer customer = customerHelper.fetchCustomerByUserId(userID);
 
-        Restaurant restaurant = restaurantUtils.fetchAndValidateRestaurant(orderRequest.restaurantId());
+        Address address = customerHelper.fetchAndValidateAddress(orderRequest.addressId(), customer.getId());
 
-        Address address = customerUtils.fetchAndValidateAddress(orderRequest.addressId(), customer.getId());
-
-        PreferredPaymentSetting paymentSetting = paymentUtils.fetchAndValidatePaymentSetting(
+        PreferredPaymentSetting paymentSetting = customerHelper.fetchAndValidatePaymentSetting(
                 orderRequest.preferredPaymentSettingId(), customer.getId());
 
         // Step 2: Cart Validation
         List<CartItem> cartItems = cartUtils.validateCartItems(cart.getId(), restaurant.getId());
+        log.info("Cart found with {} items.", cartItems.size());
 
         // Step 3: Calculate Totals
-        BigDecimal subtotal = orderUtils.calculateSubtotal(cartItems);
-        Promotion promotion = orderUtils.fetchAndValidatePromotion(orderRequest.promotionCode());
-        BigDecimal discountAmount = orderUtils.calculateDiscountAmount(subtotal, promotion);
+        BigDecimal subtotal = cartHelper.calculateSubtotal(cartItems);
+        Promotion promotion = promotionService.fetchAndValidatePromotion(orderRequest.promotionCode());
+        BigDecimal discountAmount = promotionService.calculateDiscountAmount(subtotal, promotion);
         BigDecimal total = subtotal.subtract(discountAmount);
-
+        log.info("Calculate Total for Items : {} .", total);
 
         //TODO:  Step 4: Process Payment
         //PaymentResult paymentResult = paymentService.processPayment(customer.getId(), total, paymentSetting.getPreferredPaymentSettingId());
@@ -72,7 +74,7 @@ public class OrderServiceImpl implements OrderService {
         createOrderItems(order, cartItems);
 
         // Step 7: Clear Cart (Only if Payment Successful)
-        cartUtils.cleanupCart(cart.getId(), dummyPaymentResult.status());
+        cartHelper.cleanupCart(cart.getId(), dummyPaymentResult.status());
 
         // Step 8: Return OrderSummary
         return buildOrderSummary(order, dummyPaymentResult);

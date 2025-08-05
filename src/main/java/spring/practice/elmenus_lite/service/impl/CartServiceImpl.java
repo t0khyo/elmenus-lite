@@ -12,11 +12,9 @@ import spring.practice.elmenus_lite.model.Customer;
 import spring.practice.elmenus_lite.model.MenuItem;
 import spring.practice.elmenus_lite.repostory.CartItemRepository;
 import spring.practice.elmenus_lite.repostory.CartRepository;
-import spring.practice.elmenus_lite.repostory.CustomerRepository;
-import spring.practice.elmenus_lite.repostory.MenuItemRepository;
 import spring.practice.elmenus_lite.service.CartService;
-import spring.practice.elmenus_lite.util.CartUtils;
-import spring.practice.elmenus_lite.util.CustomerUtils;
+import spring.practice.elmenus_lite.service.helper.CartHelper;
+import spring.practice.elmenus_lite.service.helper.CustomerHelper;
 import spring.practice.elmenus_lite.util.MenuUtils;
 
 import java.util.Optional;
@@ -26,21 +24,19 @@ import java.util.Optional;
 public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final CustomerRepository customerRepository;
-    private final MenuItemRepository menuItemRepository;
     private final CartMapper cartMapper;
-    private final CartUtils cartUtils;
-    private final CustomerUtils customerUtils;
+    private final CartHelper cartHelper;
     private final MenuUtils menuUtils;
+    private final CustomerHelper customerHelper;
 
     @Override
     public CartResponse getCartByCustomerId(Integer customerId) {
-        return cartMapper.toCartResponse(cartUtils.fetchCartByCustomerId(customerId));
+        return cartMapper.toCartResponse(cartHelper.fetchCartByCustomerId(customerId));
     }
 
     @Override
     public CartResponse updateCartItem(Integer cartId, Integer cartItemId, CartItemUpdateRequest cartItemUpdateRequest) {
-        CartItem cartItem = cartUtils.fetchAndValidateCartItem(cartItemId, cartId);
+        CartItem cartItem = cartHelper.fetchAndValidateCartItem(cartItemId, cartId);
 
         if (cartItemUpdateRequest.quantity() == 0) {
             // Delete Cart Item if updated quantity = 0
@@ -56,7 +52,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse addItemToCart(Integer customerId, CartItemRequest cartItemRequest) {
-        Customer customer = customerUtils.fetchCustomer(customerId);
+        Customer customer = customerHelper.fetchCustomer(customerId);
         Cart cart = Optional.ofNullable(customer.getCart())
                 .orElse(new Cart().setCustomer(customer));
 
@@ -88,19 +84,19 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse removeCartItem(Integer cartId, Integer cartItemId) {
-        CartItem cartItem = cartUtils.fetchAndValidateCartItem(cartItemId, cartId);
+        CartItem cartItem = cartHelper.fetchAndValidateCartItem(cartItemId, cartId);
         cartItemRepository.delete(cartItem);
 
         // todo add customer id using security context holder
         // Cart cart = cartUtils.fetchAndValidateCart(cartId, CustomerId);
-        Cart cart = cartUtils.fetchAndValidateCart(cartId, 1);
+        Cart cart = cartHelper.fetchAndValidateCart(cartId, 1);
         return cartMapper.toCartResponse(cart);
     }
 
     @Override
     public CartResponse clearCart(Integer cartId) {
         // todo add customer id using security context holder
-        Cart cart = cartUtils.fetchAndValidateCart(cartId, 1);
+        Cart cart = cartHelper.fetchAndValidateCart(cartId, 1);
         cartItemRepository.deleteAllInBatch(cart.getItems());
         cart.getItems().clear();
 
