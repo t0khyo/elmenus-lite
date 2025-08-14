@@ -41,7 +41,7 @@ public class RestaurantController {
     }
 
 
-    @PostMapping
+    @PostMapping("/filter")
     public ResponseEntity<List<RestaurantResponse>> getRestaurantsByFilters(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String name,
