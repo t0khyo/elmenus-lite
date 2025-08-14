@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -49,10 +50,30 @@ public class OrderServiceImpl implements OrderService {
         // Step 1: Entity Fetching & Validation
         Customer customer = customerHelper.fetchCustomerByUserId(userID);
 
-        Address address = customerHelper.fetchAndValidateAddress(orderRequest.addressId(), customer.getId());
+        CompletableFuture<Address> addressFuture = CompletableFuture.supplyAsync(() -> {
+            System.out.println("Thread : " + Thread.currentThread().getName());
+            return customerHelper.fetchAndValidateAddress(orderRequest.addressId(), customer.getId());
+        });
+        CompletableFuture<PreferredPaymentSetting> preferredPaymentSettingFuture = CompletableFuture.supplyAsync(() -> {
+            System.out.println("Thread : " + Thread.currentThread().getName());
+            return customerHelper.fetchAndValidatePaymentSetting(
+                    orderRequest.preferredPaymentSettingId(), customer.getId());
+        });
+        CompletableFuture<Promotion> promotionFuture = CompletableFuture.supplyAsync(() -> {
+            System.out.println("Thread : " + Thread.currentThread().getName());
+            return promotionService.fetchAndValidatePromotion(orderRequest.promotionCode());
+        });
 
-        PreferredPaymentSetting paymentSetting = customerHelper.fetchAndValidatePaymentSetting(
-                orderRequest.preferredPaymentSettingId(), customer.getId());
+        CompletableFuture<Void> allFutures = CompletableFuture.allOf(
+                addressFuture,
+                preferredPaymentSettingFuture,
+                promotionFuture
+        );
+
+        allFutures.join();
+        Address address = addressFuture.join();
+        Promotion promotion = promotionFuture.join();
+        PreferredPaymentSetting preferredPaymentSetting = preferredPaymentSettingFuture.join();
 
         // Step 2: Cart Validation
         Cart cart = getCart(customer);
@@ -62,7 +83,6 @@ public class OrderServiceImpl implements OrderService {
 
         // Step 3: Calculate Totals
         BigDecimal subtotal = cartHelper.calculateSubtotal(cartItems);
-        Promotion promotion = promotionService.fetchAndValidatePromotion(orderRequest.promotionCode());
         BigDecimal discountAmount = promotionService.calculateDiscountAmount(subtotal, promotion);
         BigDecimal total = subtotal.subtract(discountAmount);
         log.info("Calculate Total for Items : {} .", total);
